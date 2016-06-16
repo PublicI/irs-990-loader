@@ -6,7 +6,8 @@ var _ = require('lodash'),
     moment = require('moment'),
     parseString = require('xml2js').parseString,
     util = require('util'),
-    flat = require('flat');
+    flat = require('flat'),
+    path = require('path');
 
 var fieldMap = {
     'RecipientBusinessName.0.BusinessNameLine1.0': 'recipient_name_1',
@@ -150,6 +151,8 @@ function importTable(task, callback) {
                     callback(err);
                 }
 
+                var fileName = path.basename(task.file);
+
                 if (result.Return && result.Return.ReturnData &&
                     result.Return.ReturnData[0] && result.Return.ReturnData[0].IRS990ScheduleI &&
                     result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable) {
@@ -157,6 +160,8 @@ function importTable(task, callback) {
                     var rows = result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable.map(function(obj) {
                         obj = flat(obj);
                         var row = {};
+
+                        row.file = fileName;
 
                         if (result.Return.ReturnHeader[0].TaxYr) {
                             row.tax_year = (result.Return.ReturnHeader[0].TaxYr[0]);
