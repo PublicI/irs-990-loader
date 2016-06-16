@@ -210,20 +210,22 @@ models.sync(function(err) {
         throw err;
     }
 
-    var dir = __dirname + '/data/2015';
+    var dir = __dirname + '/data/2016';
 
     fs.readdir(dir, function(err, files) {
         var q = async.queue(importTable, 1);
-
+/*
         var ignore = true;
 
-        q.push(files.filter(function(file) {
+        .filter(function(file) {
             if (file == '201543109349301139_public.xml') {
                 ignore = false;
             }
 
             return !ignore;
-        }).map(function(file) {
+        })*/
+
+        q.push(files.map(function(file) {
             return {
                 file: dir + '/' + file
             };
