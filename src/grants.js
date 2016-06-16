@@ -215,7 +215,7 @@ models.sync(function(err) {
         throw err;
     }
 
-    var dir = __dirname + '/data/2016';
+    var dir = __dirname + '/data/2014';
 
     fs.readdir(dir, function(err, files) {
         var q = async.queue(importTable, 1);
