@@ -9,42 +9,43 @@ var _ = require('lodash'),
     flat = require('flat');
 
 var fieldMap = {
-    'RecipientBusinessName.0.BusinessNameLine1.0': 'name1',
-    'RecipientBusinessName.0.BusinessNameLine1Txt.0': 'name1',
-    'RecipientNameBusiness.0.BusinessNameLine1.0': 'name1',
-    'RecipientBusinessName.0.BusinessNameLine2.0': 'name2',
-    'RecipientBusinessName.0.BusinessNameLine2Txt.0': 'name2',
-    'RecipientNameBusiness.0.BusinessNameLine2.0': 'name2',
-    'USAddress.0.AddressLine1.0': 'address1',
-    'AddressUS.0.AddressLine1.0': 'address1',
-    'USAddress.0.AddressLine1Txt.0': 'address1',
-    'ForeignAddress.0.AddressLine1Txt.0': 'address1',
-    'ForeignAddress.0.AddressLine1.0': 'address1',
-    'USAddress.0.AddressLine2.0': 'address2',
-    'AddressUS.0.AddressLine2.0': 'address2',
-    'USAddress.0.AddressLine2Txt.0': 'address2',
-    'ForeignAddress.0.AddressLine2Txt.0': 'address2',
-    'USAddress.0.City.0': 'city',
-    'USAddress.0.CityNm.0': 'city',
-    'ForeignAddress.0.CityNm.0': 'city',
-    'AddressUS.0.City.0': 'city',
-    'ForeignAddress.0.City.0': 'city',
-    'USAddress.0.State.0': 'state',
-    'AddressUS.0.State.0': 'state',
-    'USAddress.0.StateAbbreviationCd.0': 'state',
-    'ForeignAddress.0.ProvinceOrStateNm.0': 'state',
-    'ForeignAddress.0.ProvinceOrState.0': 'state',
-    'ForeignAddress.0.CountryCd.0': 'country',
-    'ForeignAddress.0.Country.0': 'country',
-    'USAddress.0.ZIPCode.0': 'zip',
-    'USAddress.0.ZIPCd.0': 'zip',
-    'AddressUS.0.ZIPCode.0': 'zip',
-    'ForeignAddress.0.PostalCode.0': 'zip',
-    'ForeignAddress.0.ForeignPostalCd.0': 'zip',
-    'RecipientEIN.0': 'ein',
-    'EINOfRecipient.0': 'ein',
-    'IRCSectionDesc.0': 'irc_section',
-    'IRCSection.0': 'irc_section',
+    'RecipientBusinessName.0.BusinessNameLine1.0': 'recipient_name_1',
+    'RecipientBusinessName.0.BusinessNameLine1Txt.0': 'recipient_name_1',
+    'RecipientNameBusiness.0.BusinessNameLine1.0': 'recipient_name_1',
+    'RecipientBusinessName.0.BusinessNameLine2.0': 'recipient_name_2',
+    'RecipientBusinessName.0.BusinessNameLine2Txt.0': 'recipient_name_2',
+    'RecipientNameBusiness.0.BusinessNameLine2.0': 'recipient_name_2',
+    'USAddress.0.AddressLine1.0': 'recipient_street_1',
+    'AddressUS.0.AddressLine1.0': 'recipient_street_1',
+    'USAddress.0.AddressLine1Txt.0': 'recipient_street_1',
+    'ForeignAddress.0.AddressLine1Txt.0': 'recipient_street_1',
+    'ForeignAddress.0.AddressLine1.0': 'recipient_street_1',
+    'USAddress.0.AddressLine2.0': 'recipient_street_2',
+    'AddressUS.0.AddressLine2.0': 'recipient_street_2',
+    'USAddress.0.AddressLine2Txt.0': 'recipient_street_2',
+    'ForeignAddress.0.AddressLine2Txt.0': 'recipient_street_2',
+    'ForeignAddress.0.AddressLine2.0': 'recipient_street_2',
+    'USAddress.0.City.0': 'recipient_city',
+    'USAddress.0.CityNm.0': 'recipient_city',
+    'ForeignAddress.0.CityNm.0': 'recipient_city',
+    'AddressUS.0.City.0': 'recipient_city',
+    'ForeignAddress.0.City.0': 'recipient_city',
+    'USAddress.0.State.0': 'recipient_state',
+    'AddressUS.0.State.0': 'recipient_state',
+    'USAddress.0.StateAbbreviationCd.0': 'recipient_state',
+    'ForeignAddress.0.ProvinceOrStateNm.0': 'recipient_state',
+    'ForeignAddress.0.ProvinceOrState.0': 'recipient_state',
+    'ForeignAddress.0.CountryCd.0': 'recipient_country',
+    'ForeignAddress.0.Country.0': 'recipient_country',
+    'USAddress.0.ZIPCode.0': 'recipient_zip',
+    'USAddress.0.ZIPCd.0': 'recipient_zip',
+    'AddressUS.0.ZIPCode.0': 'recipient_zip',
+    'ForeignAddress.0.PostalCode.0': 'recipient_zip',
+    'ForeignAddress.0.ForeignPostalCd.0': 'recipient_zip',
+    'RecipientEIN.0': 'recipient_ein',
+    'EINOfRecipient.0': 'recipient_ein',
+    'IRCSectionDesc.0': 'recipient_tax_section',
+    'IRCSection.0': 'recipient_tax_section',
     'CashGrantAmt.0': 'cash_amt',
     'AmountOfCashGrant.0': 'cash_amt',
     'NonCashAssistanceAmt.0': 'non_cash_amt',
@@ -82,7 +83,7 @@ function importTable(task, callback) {
             numeral(processed + tasks.length).format() + ' of ' +
             numeral(queued).format());
 
-        models.irs990_filing
+        models.irs990_grant
             .bulkCreate(tasks, {
                 transaction: transaction
             })
@@ -152,39 +153,57 @@ function importTable(task, callback) {
                 if (result.Return && result.Return.ReturnData &&
                     result.Return.ReturnData[0] && result.Return.ReturnData[0].IRS990ScheduleI &&
                     result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable) {
-                    result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable.map(function (obj) {
+                    
+                    var rows = result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable.map(function (obj) {
                         obj = flat(obj);
                         var row = {};
+
+                        if (result.Return.ReturnHeader[0].TaxYr) {
+                            row.tax_year = (result.Return.ReturnHeader[0].TaxYr[0]);
+                        }
+                        if (result.Return.ReturnHeader[0].TaxYear) {
+                            row.tax_year = (result.Return.ReturnHeader[0].TaxYear[0]);
+                        }
+                        row.filer_ein = result.Return.ReturnHeader[0].Filer[0].EIN[0];
+
 
                         Object.keys(obj).forEach(function (key) {
                             if (key in fieldMap) {
                                 row[fieldMap[key]] = obj[key];
                             }
                             else {
-                                console.log('unknown field: ' + key,' ',obj[key]);
+                                console.error('unknown field: ' + key,' ',obj[key]);
                             }
                         });
-/*
-                        if (Object.keys(obj).length !== 0) {
-                            console.log(obj);
-                        }*/
 
                         return row;
                     });
-                }
 
-                callback();
+                    queued += rows.length;
+
+                    cargo.push(rows);
+
+                    cargo.drain = done;
+
+                    if (rows.length === 0) {
+                        done();
+                    }
+                }
+                else {
+                    done();
+                }
             });
         });
     }
-/*
+
+
     var cargo = async.cargo(insertRows, 200);
 
     startTransaction(function(t) {
-        transaction = t;*/
+        transaction = t;
 
         readXml();
-    //});
+    });
 
 }
 
