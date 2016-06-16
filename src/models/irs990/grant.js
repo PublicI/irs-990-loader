@@ -1,5 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
     var Grant = sequelize.define('irs990_grant', {
+        file: DataTypes.TEXT,
         tax_year: DataTypes.TEXT,
         filer_ein: DataTypes.TEXT,
         recipient_name_1: DataTypes.TEXT,
