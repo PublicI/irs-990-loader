@@ -140,12 +140,12 @@ function importTable(task, callback) {
     }
 
     function readXml() {
-        fs.readFile(task.file,function (err,data) {
+        fs.readFile(task.file, function(err, data) {
             if (err) {
                 callback(err);
             }
 
-            parseString(data,function (err2,result) {
+            parseString(data, function(err2, result) {
                 if (err2) {
                     callback(err);
                 }
@@ -153,8 +153,8 @@ function importTable(task, callback) {
                 if (result.Return && result.Return.ReturnData &&
                     result.Return.ReturnData[0] && result.Return.ReturnData[0].IRS990ScheduleI &&
                     result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable) {
-                    
-                    var rows = result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable.map(function (obj) {
+
+                    var rows = result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable.map(function(obj) {
                         obj = flat(obj);
                         var row = {};
 
@@ -167,12 +167,11 @@ function importTable(task, callback) {
                         row.filer_ein = result.Return.ReturnHeader[0].Filer[0].EIN[0];
 
 
-                        Object.keys(obj).forEach(function (key) {
+                        Object.keys(obj).forEach(function(key) {
                             if (key in fieldMap) {
                                 row[fieldMap[key]] = obj[key];
-                            }
-                            else {
-                                console.error('unknown field: ' + key,' ',obj[key]);
+                            } else {
+                                console.error('unknown field: ' + key, ' ', obj[key]);
                             }
                         });
 
@@ -188,8 +187,7 @@ function importTable(task, callback) {
                     if (rows.length === 0) {
                         done();
                     }
-                }
-                else {
+                } else {
                     done();
                 }
             });
@@ -207,23 +205,31 @@ function importTable(task, callback) {
 
 }
 
-models.sync(function (err) {
+models.sync(function(err) {
     if (err) {
         throw err;
     }
 
     var dir = __dirname + '/data/2015';
 
-    fs.readdir(dir,function (err,files) {
-        var q = async.queue(importTable,1);
+    fs.readdir(dir, function(err, files) {
+        var q = async.queue(importTable, 1);
 
-        q.push(files.map(function (file) {
+        var ignore = true;
+
+        q.push(files.filter(function(file) {
+            if (file == '201543109349301139_public.xml') {
+                ignore = false;
+            }
+
+            return !ignore;
+        }).map(function(file) {
             return {
                 file: dir + '/' + file
             };
         }));
 
-        q.drain = function () {
+        q.drain = function() {
             console.log('done');
         };
     });
