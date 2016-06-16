@@ -59,7 +59,7 @@ var fieldMap = {
 };
 
 function importTable(task, callback) {
-    // console.log('inserting rows from ' + task.file);
+    console.log('inserting rows from ' + task.file);
 
     var transaction = null;
 
