@@ -5,7 +5,6 @@ module.exports = function(sequelize, DataTypes) {
         filer_ein: DataTypes.TEXT,
         recipient_name_1: DataTypes.TEXT,
         recipient_name_2:  DataTypes.TEXT,
-        recipient_name2:  DataTypes.TEXT,
         recipient_street_1: DataTypes.TEXT,
         recipient_street_2: DataTypes.TEXT,
         recipient_city: DataTypes.TEXT,
