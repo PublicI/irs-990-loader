@@ -23,9 +23,9 @@ module.exports = function(sequelize, DataTypes) {
         filing_req_cd: DataTypes.TEXT,
         pf_filing_req_cd: DataTypes.TEXT,
         acct_pd: DataTypes.TEXT,
-        asset_amt: DataTypes.TEXT,
-        income_amt: DataTypes.TEXT,
-        revenue_amt: DataTypes.TEXT,
+        asset_amt: DataTypes.BIGINT,
+        income_amt: DataTypes.BIGINT,
+        revenue_amt: DataTypes.BIGINT,
         ntee_cd: DataTypes.TEXT,
         sort_name: DataTypes.TEXT
     },{
