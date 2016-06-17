@@ -7,7 +7,7 @@ module.exports = function(sequelize, DataTypes) {
             field: 'object_id'
         },
         EIN: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.TEXT,
             field: 'ein'
         },
         SubmittedOn: {
@@ -60,6 +60,10 @@ module.exports = function(sequelize, DataTypes) {
             field: 'is_available',
             type: DataTypes.BOOLEAN
         }
+    },{
+        indexes: [{
+            fields: ['ein']
+        }]
     });
 
     return Filing;
