@@ -18,6 +18,12 @@ module.exports = function(sequelize, DataTypes) {
         non_cash_desc: DataTypes.TEXT,
         valuation_method: DataTypes.TEXT,
         purpose: DataTypes.TEXT
+    },{
+        indexes: [{
+            fields: ['filer_ein']
+        },{
+            fields: ['recipient_ein']
+        }]
     });
 
     return Grant;

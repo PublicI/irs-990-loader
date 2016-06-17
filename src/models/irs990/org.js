@@ -28,6 +28,10 @@ module.exports = function(sequelize, DataTypes) {
         revenue_amt: DataTypes.TEXT,
         ntee_cd: DataTypes.TEXT,
         sort_name: DataTypes.TEXT
+    },{
+        indexes: [{
+            fields: ['ein']
+        }]
     });
 
     return Org;
