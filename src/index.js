@@ -93,7 +93,8 @@ function importTable(task, callback) {
         var i = 0;
 
         fs.createReadStream(task.file)
-            .pipe(brake(45164*20))
+            .pipe(brake(45164*11))
+            /*
             .pipe(replaceStream(/("|'|True|False)/g, function (match) {
                 if (match == '"') {
                     i++;
@@ -109,7 +110,7 @@ function importTable(task, callback) {
                 else if (match == 'False') {
                     return 'false';
                 }
-            }))
+            }))*/
             .pipe(JSONStream.parse('AllFilings.*'))
             .on('data', function(row) {
                 queued++;
