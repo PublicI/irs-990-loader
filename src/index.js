@@ -83,7 +83,7 @@ function importTable(task, callback) {
     }
 
     function truncate(cb) {
-        models.cmag_ad.truncate({
+        models.irs990_filing.truncate({
                 transaction: transaction
             })
             .then(cb);
@@ -131,7 +131,9 @@ function importTable(task, callback) {
     startTransaction(function(t) {
         transaction = t;
 
-        readJson();
+        truncate(function () {
+            readJson();
+        });
     });
 
 }
