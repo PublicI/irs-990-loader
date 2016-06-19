@@ -125,7 +125,7 @@ function importTable(task, callback) {
     }
 
     function done() {
-        console.log('inserted ' + processed + ' rows from ' + task.file);
+        // console.log('inserted ' + processed + ' rows from ' + task.file);
 
         if (processed == queued && !finished) {
             finished = true;
@@ -146,7 +146,7 @@ function importTable(task, callback) {
     }
 
     function truncate(cb) {
-        models.cmag_ad.truncate({
+        models.irs990_grant.truncate({
                 transaction: transaction
             })
             .then(cb);
@@ -276,7 +276,7 @@ models.sync(function(err) {
 
     var dir = __dirname + '/data';
 
-    var q = async.queue(importTable, 1);
+    var q = async.queue(importTable, 2);
 
     rread
         .fileSync(dir)
