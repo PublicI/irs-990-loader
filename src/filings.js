@@ -138,8 +138,7 @@ function importTable(task, callback) {
                         callback(null, result);
                     })
                     .catch(error);
-            }
-            else {
+            } else {
                 callback(null);
             }
         }
@@ -167,7 +166,7 @@ function importTable(task, callback) {
         return row;
     }
 
-    function processGrants(filing,result) {
+    function processGrants(filing, result) {
         var grants = [];
 
         if (result.Return.ReturnData &&
@@ -175,27 +174,26 @@ function importTable(task, callback) {
             result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable) {
 
             grants = result.Return.ReturnData[0]
-                        .IRS990ScheduleI[0].RecipientTable.map(mapFields)
-                            .map(function (grant) {
-                                grant.filer_ein = filing.ein;
-                                grant.tax_period = filing.tax_period;
-                                grant.object_id = filing.object_id;
+                .IRS990ScheduleI[0].RecipientTable.map(mapFields)
+                .map(function(grant) {
+                    grant.filer_ein = filing.ein;
+                    grant.tax_period = filing.tax_period;
+                    grant.object_id = filing.object_id;
 
-                                grant.recipient_name = null;
-                                if (grant.recipient_name_1) {
-                                    grant.recipient_name = grant.recipient_name_1.trim();
-                                }
-                                if (grant.recipient_name_2) {
-                                    if (grant.recipient_name) {
-                                        grant.recipient_name += ' ' + grant.recipient_name_2.trim();
-                                    }
-                                    else {
-                                        grant.recipient_name = grant.recipient_name_2.trim();
-                                    }
-                                }
+                    grant.recipient_name = null;
+                    if (grant.recipient_name_1) {
+                        grant.recipient_name = grant.recipient_name_1.trim();
+                    }
+                    if (grant.recipient_name_2) {
+                        if (grant.recipient_name) {
+                            grant.recipient_name += ' ' + grant.recipient_name_2.trim();
+                        } else {
+                            grant.recipient_name = grant.recipient_name_2.trim();
+                        }
+                    }
 
-                                return grant;
-                            });
+                    return grant;
+                });
         }
         return grants;
     }
@@ -221,7 +219,7 @@ function importTable(task, callback) {
             filing.ein = header.Filer[0].EIN[0];
             filing.object_id = fileName.replace('_public.xml', '');
 
-            filing.grants = processGrants(filing,result);
+            filing.grants = processGrants(filing, result);
         }
 
         return filing;
@@ -230,18 +228,17 @@ function importTable(task, callback) {
     function readXml() {
         fs.readFile(task.file, function(err, data) {
             if (err) {
-                callback(err);
+                error(err);
             }
 
             parseString(data, function(err2, result) {
                 if (err2) {
-                    callback(err);
+                    error(err);
                 }
 
                 var filing = processFiling(result);
 
                 if (filing && filing.grants.length > 0) {
-
                     startTransaction(function(t) {
                         transaction = t;
 
@@ -251,7 +248,7 @@ function importTable(task, callback) {
 
                         cargo.drain = done;
 
-                        if (queued === processed) {
+                        if (queued === processed || queued === 0) {
                             done();
                         }
                     });
