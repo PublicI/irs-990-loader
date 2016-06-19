@@ -250,6 +250,10 @@ function importTable(task, callback) {
                         cargo.push(filing.grants);
 
                         cargo.drain = done;
+
+                        if (queued === processed) {
+                            done();
+                        }
                     });
                 } else {
                     done();
