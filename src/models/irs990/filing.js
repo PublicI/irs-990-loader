@@ -15,9 +15,9 @@ module.exports = function(sequelize, DataTypes) {
             field: 'submitted_on',
             set: function(val) {
                 if (val && !(val instanceof Date) && val.toString().match(/^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$/)) {
-                    this.setDataValue('submitted_on', moment(val, 'YYYY-MM-DD').toDate());
+                    this.setDataValue('SubmittedOn', moment(val, 'YYYY-MM-DD').toDate());
                 } else {
-                    this.setDataValue('submitted_on', val);
+                    this.setDataValue('SubmittedOn', val);
                 }
             }
         },
@@ -34,9 +34,9 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.DATE,
             set: function(val) {
                 if (val && !(val instanceof Date) && val.toString().match(/^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}T[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}$/)) {
-                    this.setDataValue('submitted_on', moment(val, 'YYYY-MM-DD[T]HH:mm:ss').toDate());
+                    this.setDataValue('LastUpdated', moment(val, 'YYYY-MM-DD[T]HH:mm:ss').toDate());
                 } else {
-                    this.setDataValue('submitted_on', val);
+                    this.setDataValue('LastUpdated', val);
                 }
             }
         },
