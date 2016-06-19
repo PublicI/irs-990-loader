@@ -7,7 +7,8 @@ var _ = require('lodash'),
     parseString = require('xml2js').parseString,
     util = require('util'),
     flat = require('flat'),
-    path = require('path');
+    path = require('path'),
+    rread = require('readdir-recursive');
 
 var fieldMap = {
     'RecipientBusinessName.0.BusinessNameLine1.0': 'recipient_name_1',
@@ -129,13 +130,18 @@ function importTable(task, callback) {
         if (processed == queued && !finished) {
             finished = true;
 
-            console.log('commiting transaction');
+            if (transaction) {
+                console.log('commiting transaction');
 
-            transaction.commit()
-                .then(function(result) {
-                    callback(null, result);
-                })
-                .catch(error);
+                transaction.commit()
+                    .then(function(result) {
+                        callback(null, result);
+                    })
+                    .catch(error);
+            }
+            else {
+                callback(null);
+            }
         }
     }
 
@@ -144,6 +150,81 @@ function importTable(task, callback) {
                 transaction: transaction
             })
             .then(cb);
+    }
+
+    function mapFields(obj) {
+        obj = flat(obj);
+        var row = {};
+
+        Object.keys(obj).forEach(function(key) {
+            if (key in fieldMap) {
+                row[fieldMap[key]] = obj[key];
+            } else {
+                console.error('unknown field: ' + key, ' ', obj[key]);
+            }
+        });
+
+        return row;
+    }
+
+    function processGrants(filing,result) {
+        var grants = [];
+
+        if (result.Return.ReturnData &&
+            result.Return.ReturnData[0] && result.Return.ReturnData[0].IRS990ScheduleI &&
+            result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable) {
+
+            grants = result.Return.ReturnData[0]
+                        .IRS990ScheduleI[0].RecipientTable.map(mapFields)
+                            .map(function (grant) {
+                                grant.filer_ein = filing.ein;
+                                grant.tax_period = filing.tax_period;
+                                grant.object_id = filing.object_id;
+
+                                grant.recipient_name = null;
+                                if (grant.recipient_name_1) {
+                                    grant.recipient_name = grant.recipient_name_1.trim();
+                                }
+                                if (grant.recipient_name_2) {
+                                    if (grant.recipient_name) {
+                                        grant.recipient_name += ' ' + grant.recipient_name_2.trim();
+                                    }
+                                    else {
+                                        grant.recipient_name = grant.recipient_name_2.trim();
+                                    }
+                                }
+
+                                return grant;
+                            });
+        }
+        return grants;
+    }
+
+    function processFiling(result) {
+        var filing = {};
+
+        if (result.Return) {
+            var fileName = path.basename(task.file);
+
+            var header = result.Return.ReturnHeader[0];
+            var endDate = null;
+            if (header.TaxPeriodEndDt) {
+                endDate = header.TaxPeriodEndDt[0];
+            }
+            if (header.TaxPeriodEndDate) {
+                endDate = header.TaxPeriodEndDate[0];
+            }
+            if (endDate) {
+                filing.tax_period = endDate.replace('-', '').substr(0, 6);
+            }
+
+            filing.ein = header.Filer[0].EIN[0];
+            filing.object_id = fileName.replace('_public.xml', '');
+
+            filing.grants = processGrants(filing,result);
+        }
+
+        return filing;
     }
 
     function readXml() {
@@ -157,47 +238,19 @@ function importTable(task, callback) {
                     callback(err);
                 }
 
-                var fileName = path.basename(task.file);
+                var filing = processFiling(result);
 
-                if (result.Return && result.Return.ReturnData &&
-                    result.Return.ReturnData[0] && result.Return.ReturnData[0].IRS990ScheduleI &&
-                    result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable) {
+                if (filing && filing.grants.length > 0) {
 
-                    var rows = result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable.map(function(obj) {
-                        obj = flat(obj);
-                        var row = {};
+                    startTransaction(function(t) {
+                        transaction = t;
 
-                        row.file = fileName;
+                        queued += filing.grants.length;
 
-                        if (result.Return.ReturnHeader[0].TaxYr) {
-                            row.tax_year = (result.Return.ReturnHeader[0].TaxYr[0]);
-                        }
-                        if (result.Return.ReturnHeader[0].TaxYear) {
-                            row.tax_year = (result.Return.ReturnHeader[0].TaxYear[0]);
-                        }
-                        row.filer_ein = result.Return.ReturnHeader[0].Filer[0].EIN[0];
+                        cargo.push(filing.grants);
 
-
-                        Object.keys(obj).forEach(function(key) {
-                            if (key in fieldMap) {
-                                row[fieldMap[key]] = obj[key];
-                            } else {
-                                console.error('unknown field: ' + key, ' ', obj[key]);
-                            }
-                        });
-
-                        return row;
+                        cargo.drain = done;
                     });
-
-                    queued += rows.length;
-
-                    cargo.push(rows);
-
-                    cargo.drain = done;
-
-                    if (rows.length === 0) {
-                        done();
-                    }
                 } else {
                     done();
                 }
@@ -208,11 +261,7 @@ function importTable(task, callback) {
 
     var cargo = async.cargo(insertRows, 200);
 
-    startTransaction(function(t) {
-        transaction = t;
-
-        readXml();
-    });
+    readXml();
 
 }
 
@@ -221,29 +270,23 @@ models.sync(function(err) {
         throw err;
     }
 
-    var dir = __dirname + '/data/2013';
+    var dir = __dirname + '/data';
 
-    fs.readdir(dir, function(err, files) {
-        var q = async.queue(importTable, 1);
-/*
-        var ignore = true;
+    var q = async.queue(importTable, 1);
 
+    rread
+        .fileSync(dir)
         .filter(function(file) {
-            if (file == '201543109349301139_public.xml') {
-                ignore = false;
-            }
+            return (file.slice(-4) === '.xml');
+        })
+        .forEach(function(file) {
+            q.push({
+                file: file
+            });
+        });
 
-            return !ignore;
-        })*/
+    q.drain = function() {
+        console.log('done');
+    };
 
-        q.push(files.map(function(file) {
-            return {
-                file: dir + '/' + file
-            };
-        }));
-
-        q.drain = function() {
-            console.log('done');
-        };
-    });
 });
