@@ -166,6 +166,30 @@ function importTable(task, callback) {
         return row;
     }
 
+    function processOfficers(filing, result) {
+        var officers = [];
+
+        if (result.Return.ReturnData &&
+            result.Return.ReturnData[0] && (result.Return.ReturnData[0].Form990PartVIISectionAGrp ||
+            result.Return.ReturnData[0].OfficerDirectorTrusteeKeyEmpl)) {
+
+            officers = result.Return.ReturnData[0].Form990PartVIISectionAGrp || result.Return.ReturnData[0].OfficerDirectorTrusteeKeyEmpl;
+
+            officers
+                .map(mapFields)
+                .map(function(officer) {
+                    officer.filer_ein = filing.ein;
+                    officer.tax_period = filing.tax_period;
+                    officer.object_id = filing.object_id;
+
+                    console.log(officer);
+
+                    return officer;
+                });
+        }
+        return officers;
+    }
+
     function processGrants(filing, result) {
         var grants = [];
 
@@ -219,7 +243,10 @@ function importTable(task, callback) {
             filing.ein = header.Filer[0].EIN[0];
             filing.object_id = fileName.replace('_public.xml', '');
 
-            filing.grants = processGrants(filing, result);
+            // filing.grants = processGrants(filing, result);
+            filing.grants = [];
+
+            filing.officers = processOfficers(filing, result);
         }
 
         return filing;
