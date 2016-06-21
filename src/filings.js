@@ -170,10 +170,15 @@ function importTable(task, callback) {
         var officers = [];
 
         if (result.Return.ReturnData &&
-            result.Return.ReturnData[0] && (result.Return.ReturnData[0].Form990PartVIISectionAGrp ||
-            result.Return.ReturnData[0].OfficerDirectorTrusteeKeyEmpl)) {
+            result.Return.ReturnData[0]) {
 
-            officers = result.Return.ReturnData[0].Form990PartVIISectionAGrp || result.Return.ReturnData[0].OfficerDirectorTrusteeKeyEmpl;
+            if (result.Return.ReturnData[0].IRS990 &&
+                    result.Return.ReturnData[0].IRS990[0].Form990PartVIISectionAGrp) {
+                officers = result.Return.ReturnData[0].IRS990[0].Form990PartVIISectionAGrp;
+            }
+            if (result.Return.ReturnData[0].IRS990EZ && result.Return.ReturnData[0].IRS990EZ[0].OfficerDirectorTrusteeKeyEmpl) {
+                officers = result.Return.ReturnData[0].IRS990EZ[0].OfficerDirectorTrusteeKeyEmpl;
+            }
 
             officers
                 .map(mapFields)
