@@ -1,7 +1,7 @@
 var moment = require('moment');
 
 module.exports = function(sequelize, DataTypes) {
-    var Filing = sequelize.define('irs990_filing', {
+    var FilingMeta = sequelize.define('irs990_filing_meta', {
         ObjectId: {
             type: DataTypes.STRING,
             field: 'object_id'
@@ -66,5 +66,5 @@ module.exports = function(sequelize, DataTypes) {
         }]
     });
 
-    return Filing;
+    return FilingMeta;
 };

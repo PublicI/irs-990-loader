@@ -5,7 +5,6 @@ var _ = require('lodash'),
     models = require('./models'),
     moment = require('moment'),
     JSONStream = require('JSONStream'),
-    replaceStream = require('replacestream'),
     brake = require('brake');
 
 function importTable(task, callback) {
@@ -33,7 +32,7 @@ function importTable(task, callback) {
             numeral(processed + tasks.length).format() + ' of ' +
             numeral(queued).format());
 
-        models.irs990_filing
+        models.irs990_filing_meta
             .bulkCreate(tasks, {
                 transaction: transaction
             })
@@ -83,7 +82,7 @@ function importTable(task, callback) {
     }
 
     function truncate(cb) {
-        models.irs990_filing.truncate({
+        models.irs990_filing_meta.truncate({
                 transaction: transaction
             })
             .then(cb);
