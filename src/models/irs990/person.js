@@ -10,21 +10,18 @@ module.exports = function(sequelize, DataTypes) {
         person_city: DataTypes.TEXT,
         person_state: DataTypes.TEXT,
         person_zip: DataTypes.TEXT,
-        person_country: DataTypes.TEXT,
-        person_ein: DataTypes.TEXT,
-        person_tax_section: DataTypes.TEXT,
-        person_hours: DataTypes.DECIMAL(12,2),
-        person_org_compensation: DataTypes.DECIMAL(12,2),
-        person_related_org_compensation: DataTypes.DECIMAL(12,2),
-        person_other_compensation: 
-        non_cash_desc: DataTypes.TEXT,
-        valuation_method: DataTypes.TEXT,
-        purpose: DataTypes.TEXT
+        hours: DataTypes.DECIMAL(12,2),
+        org_compensation: DataTypes.DECIMAL(12,2),
+        related_org_compensation: DataTypes.DECIMAL(12,2),
+        other_compensation: DataTypes.DECIMAL(12,2),
+        benefit_contribution: DataTypes.DECIMAL(12,2),
+        expenses_or_allowances: DataTypes.DECIMAL(12,2),
+        board_member: DataTypes.TEXT,
+        officer: DataTypes.TEXT,
+        highest_compensated: DataTypes.TEXT
     },{
         indexes: [{
             fields: ['filer_ein']
-        },{
-            fields: ['recipient_ein']
         }],
         tableName: 'irs990_people'
     });
