@@ -32,7 +32,7 @@ function importTable(task, callback) {
             numeral(processed + tasks.length).format() + ' of ' +
             numeral(queued).format());
 
-        models.irs990_filing_meta
+        models.irs990_filings_meta
             .bulkCreate(tasks, {
                 transaction: transaction
             })
@@ -82,7 +82,7 @@ function importTable(task, callback) {
     }
 
     function truncate(cb) {
-        models.irs990_filing_meta.truncate({
+        models.irs990_filings_meta.truncate({
                 transaction: transaction
             })
             .then(cb);

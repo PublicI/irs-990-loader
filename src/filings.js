@@ -11,39 +11,39 @@ var _ = require('lodash'),
     rread = require('readdir-recursive');
 
 var fieldMap = {
-    'RecipientBusinessName.0.BusinessNameLine1.0': 'recipient_name_1',
-    'RecipientBusinessName.0.BusinessNameLine1Txt.0': 'recipient_name_1',
-    'RecipientNameBusiness.0.BusinessNameLine1.0': 'recipient_name_1',
-    'RecipientBusinessName.0.BusinessNameLine2.0': 'recipient_name_2',
-    'RecipientBusinessName.0.BusinessNameLine2Txt.0': 'recipient_name_2',
-    'RecipientNameBusiness.0.BusinessNameLine2.0': 'recipient_name_2',
-    'USAddress.0.AddressLine1.0': 'recipient_street_1',
-    'AddressUS.0.AddressLine1.0': 'recipient_street_1',
-    'USAddress.0.AddressLine1Txt.0': 'recipient_street_1',
-    'ForeignAddress.0.AddressLine1Txt.0': 'recipient_street_1',
-    'ForeignAddress.0.AddressLine1.0': 'recipient_street_1',
-    'AddressForeign.0.AddressLine1.0': 'recipient_street_1',
-    'USAddress.0.AddressLine2.0': 'recipient_street_2',
-    'AddressUS.0.AddressLine2.0': 'recipient_street_2',
-    'USAddress.0.AddressLine2Txt.0': 'recipient_street_2',
-    'ForeignAddress.0.AddressLine2Txt.0': 'recipient_street_2',
-    'ForeignAddress.0.AddressLine2.0': 'recipient_street_2',
-    'AddressForeign.0.AddressLine2.0': 'recipient_street_2',
-    'USAddress.0.City.0': 'recipient_city',
-    'USAddress.0.CityNm.0': 'recipient_city',
-    'ForeignAddress.0.CityNm.0': 'recipient_city',
-    'AddressUS.0.City.0': 'recipient_city',
-    'ForeignAddress.0.City.0': 'recipient_city',
-    'AddressForeign.0.City.0': 'recipient_city',
-    'USAddress.0.State.0': 'recipient_state',
-    'AddressUS.0.State.0': 'recipient_state',
-    'USAddress.0.StateAbbreviationCd.0': 'recipient_state',
-    'ForeignAddress.0.ProvinceOrStateNm.0': 'recipient_state',
-    'ForeignAddress.0.ProvinceOrState.0': 'recipient_state',
-    'AddressForeign.0.ProvinceOrState.0': 'recipient_state',
-    'ForeignAddress.0.CountryCd.0': 'recipient_country',
-    'ForeignAddress.0.Country.0': 'recipient_country',
-    'AddressForeign.0.Country.0': 'recipient_country',
+    'RecipientBusinessName.0.BusinessNameLine1.0': 'prefix_name_1',
+    'RecipientBusinessName.0.BusinessNameLine1Txt.0': 'prefix_name_1',
+    'RecipientNameBusiness.0.BusinessNameLine1.0': 'prefix_name_1',
+    'RecipientBusinessName.0.BusinessNameLine2.0': 'prefix_name_2',
+    'RecipientBusinessName.0.BusinessNameLine2Txt.0': 'prefix_name_2',
+    'RecipientNameBusiness.0.BusinessNameLine2.0': 'prefix_name_2',
+    'USAddress.0.AddressLine1.0': 'prefix_street_1',
+    'AddressUS.0.AddressLine1.0': 'prefix_street_1',
+    'USAddress.0.AddressLine1Txt.0': 'prefix_street_1',
+    'ForeignAddress.0.AddressLine1Txt.0': 'prefix_street_1',
+    'ForeignAddress.0.AddressLine1.0': 'prefix_street_1',
+    'AddressForeign.0.AddressLine1.0': 'prefix_street_1',
+    'USAddress.0.AddressLine2.0': 'prefix_street_2',
+    'AddressUS.0.AddressLine2.0': 'prefix_street_2',
+    'USAddress.0.AddressLine2Txt.0': 'prefix_street_2',
+    'ForeignAddress.0.AddressLine2Txt.0': 'prefix_street_2',
+    'ForeignAddress.0.AddressLine2.0': 'prefix_street_2',
+    'AddressForeign.0.AddressLine2.0': 'prefix_street_2',
+    'USAddress.0.City.0': 'prefix_city',
+    'USAddress.0.CityNm.0': 'prefix_city',
+    'ForeignAddress.0.CityNm.0': 'prefix_city',
+    'AddressUS.0.City.0': 'prefix_city',
+    'ForeignAddress.0.City.0': 'prefix_city',
+    'AddressForeign.0.City.0': 'prefix_city',
+    'USAddress.0.State.0': 'prefix_state',
+    'AddressUS.0.State.0': 'prefix_state',
+    'USAddress.0.StateAbbreviationCd.0': 'prefix_state',
+    'ForeignAddress.0.ProvinceOrStateNm.0': 'prefix_state',
+    'ForeignAddress.0.ProvinceOrState.0': 'prefix_state',
+    'AddressForeign.0.ProvinceOrState.0': 'prefix_state',
+    'ForeignAddress.0.CountryCd.0': 'prefix_country',
+    'ForeignAddress.0.Country.0': 'prefix_country',
+    'AddressForeign.0.Country.0': 'prefix_country',
     'USAddress.0.ZIPCode.0': 'recipient_zip',
     'USAddress.0.ZIPCd.0': 'recipient_zip',
     'AddressUS.0.ZIPCode.0': 'recipient_zip',
@@ -63,7 +63,27 @@ var fieldMap = {
     'ValuationMethodUsedDesc.0': 'valuation_method',
     'MethodOfValuation.0': 'valuation_method',
     'PurposeOfGrantTxt.0': 'purpose',
-    'PurposeOfGrant.0': 'purpose'
+    'PurposeOfGrant.0': 'purpose',
+    'PersonNm.0': 'prefix_name',
+    'PersonName.0._': 'prefix_name',
+    'PersonName.0': 'prefix_name',
+    'BusinessName.0.BusinessNameLine1.0': 'prefix_name',
+    'BusinessName.0.BusinessNameLine2.0': 'prefix_business_name',
+    'TitleTxt.0': 'prefix_title',
+    'Title.0': 'prefix_title',
+    'AverageHoursPerWeekRt.0': 'prefix_hours',
+    'AvgHoursPerWkDevotedToPosition.0': 'prefix_hours',
+    'IndividualTrusteeOrDirectorInd.0': 'prefix_board_member',
+    'OfficerInd.0': 'prefix_officer',
+    'HighestCompensatedEmployeeInd.0': 'prefix_highest_compensated',
+    'ReportableCompFromOrgAmt.0': 'prefix_org_compensation',
+    'ReportableCompFromRltdOrgAmt.0': 'prefix_related_org_compensation',
+    'OtherCompensationAmt.0': 'prefix_other_compensation',
+    'ExpenseAccountOtherAllowances.0': 'prefix_expenses_or_allowances',
+    'ContriToEmplBenefitPlansEtc.0': 'prefix_benefit_contribution',
+    'Compensation.0': 'prefix_org_compensation',
+    'PersonName.0.$.referenceDocumentId': 'reference_document_id',
+    'BusinessName.0.$.referenceDocumentId': 'reference_document_id'
 };
 
 function importTable(task, callback) {
@@ -151,13 +171,13 @@ function importTable(task, callback) {
             .then(cb);
     }
 
-    function mapFields(obj) {
+    function mapFields(prefix,obj) {
         obj = flat(obj);
         var row = {};
 
         Object.keys(obj).forEach(function(key) {
             if (key in fieldMap) {
-                row[fieldMap[key]] = obj[key];
+                row[fieldMap[key].replace('prefix_',prefix + '_')] = obj[key];
             } else {
                 console.error('unknown field: ' + key, ' ', obj[key]);
             }
@@ -166,33 +186,42 @@ function importTable(task, callback) {
         return row;
     }
 
-    function processOfficers(filing, result) {
-        var officers = [];
+    function processPeople(filing, result) {
+        var people = [];
 
         if (result.Return.ReturnData &&
             result.Return.ReturnData[0]) {
 
             if (result.Return.ReturnData[0].IRS990 &&
                     result.Return.ReturnData[0].IRS990[0].Form990PartVIISectionAGrp) {
-                officers = result.Return.ReturnData[0].IRS990[0].Form990PartVIISectionAGrp;
+                people = result.Return.ReturnData[0].IRS990[0].Form990PartVIISectionAGrp;
             }
             if (result.Return.ReturnData[0].IRS990EZ && result.Return.ReturnData[0].IRS990EZ[0].OfficerDirectorTrusteeKeyEmpl) {
-                officers = result.Return.ReturnData[0].IRS990EZ[0].OfficerDirectorTrusteeKeyEmpl;
+                people = result.Return.ReturnData[0].IRS990EZ[0].OfficerDirectorTrusteeKeyEmpl;
+            }
+            if (result.Return.ReturnData[0].IRS990PF &&
+                result.Return.ReturnData[0].IRS990PF[0].OfcrDirTrusteesKeyEmployeeInfo &&
+                result.Return.ReturnData[0].IRS990PF[0].OfcrDirTrusteesKeyEmployeeInfo[0].OfcrDirTrusteesOrKeyEmployee) {
+                people = result.Return.ReturnData[0].IRS990PF[0].OfcrDirTrusteesKeyEmployeeInfo[0].OfcrDirTrusteesOrKeyEmployee;
             }
 
-            officers
-                .map(mapFields)
-                .map(function(officer) {
-                    officer.filer_ein = filing.ein;
-                    officer.tax_period = filing.tax_period;
-                    officer.object_id = filing.object_id;
+            people = people
+                .map(mapFields.bind(this,'person'))
+                .map(function(person) {
+                    person.filer_ein = filing.ein;
+                    person.tax_period = filing.tax_period;
+                    person.object_id = filing.object_id;
 
-                    console.log(officer);
+                    if (person.person_street_1) {
+                        person.person_street = person.person_street_1;
+                    }
 
-                    return officer;
+                    return person;
                 });
+
+            // console.log(people);
         }
-        return officers;
+        return people;
     }
 
     function processGrants(filing, result) {
@@ -203,7 +232,7 @@ function importTable(task, callback) {
             result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable) {
 
             grants = result.Return.ReturnData[0]
-                .IRS990ScheduleI[0].RecipientTable.map(mapFields)
+                .IRS990ScheduleI[0].RecipientTable.map(mapFields.bind(this,'recipient'))
                 .map(function(grant) {
                     grant.filer_ein = filing.ein;
                     grant.tax_period = filing.tax_period;
@@ -251,7 +280,7 @@ function importTable(task, callback) {
             // filing.grants = processGrants(filing, result);
             filing.grants = [];
 
-            filing.officers = processOfficers(filing, result);
+            filing.officers = processPeople(filing, result);
         }
 
         return filing;

@@ -1,7 +1,7 @@
 var moment = require('moment');
 
 module.exports = function(sequelize, DataTypes) {
-    var FilingMeta = sequelize.define('irs990_filing_meta', {
+    var FilingMeta = sequelize.define('irs990_filings_meta', {
         ObjectId: {
             type: DataTypes.STRING,
             field: 'object_id'
@@ -61,6 +61,7 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.BOOLEAN
         }
     },{
+        freezeTableName: true,
         indexes: [{
             fields: ['ein']
         }]
