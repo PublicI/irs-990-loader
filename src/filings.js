@@ -72,14 +72,18 @@ var fieldMap = {
     'TitleTxt.0': 'prefix_title',
     'Title.0': 'prefix_title',
     'AverageHoursPerWeekRt.0': 'hours',
+    'AverageHoursPerWeek.0': 'hours',
     'AvgHoursPerWkDevotedToPosition.0': 'hours',
     'IndividualTrusteeOrDirectorInd.0': 'board_member',
     'OfficerInd.0': 'officer',
     'HighestCompensatedEmployeeInd.0': 'highest_compensated',
     'ReportableCompFromOrgAmt.0': 'org_compensation',
+    'ReportableCompFromOrganization.0': 'org_compensation',
     'Compensation.0': 'org_compensation',
     'ReportableCompFromRltdOrgAmt.0': 'related_org_compensation',
+    'ReportableCompFromRelatedOrgs.0': 'related_org_compensation',
     'OtherCompensationAmt.0': 'other_compensation',
+    'OtherCompensation.0': 'other_compensation',
     'ExpenseAccountOtherAllowances.0': 'expenses_or_allowances',
     'ContriToEmplBenefitPlansEtc.0': 'benefit_contribution',
     'PersonName.0.$.referenceDocumentId': 'reference_document_id',
@@ -196,6 +200,10 @@ function importTable(task, callback) {
                     result.Return.ReturnData[0].IRS990[0].Form990PartVIISectionAGrp) {
                 people = result.Return.ReturnData[0].IRS990[0].Form990PartVIISectionAGrp;
             }
+            if (result.Return.ReturnData[0].IRS990 &&
+                    result.Return.ReturnData[0].IRS990[0].Form990PartVIISectionA) {
+                people = result.Return.ReturnData[0].IRS990[0].Form990PartVIISectionA;
+            }
             if (result.Return.ReturnData[0].IRS990EZ && result.Return.ReturnData[0].IRS990EZ[0].OfficerDirectorTrusteeKeyEmpl) {
                 people = result.Return.ReturnData[0].IRS990EZ[0].OfficerDirectorTrusteeKeyEmpl;
             }
@@ -219,7 +227,7 @@ function importTable(task, callback) {
                     return person;
                 });
 
-            console.log(people);
+            console.log(people.length);
         }
         return people;
     }
