@@ -18,7 +18,8 @@ module.exports = function(sequelize, DataTypes) {
         expenses_or_allowances: DataTypes.DECIMAL(12,2),
         board_member: DataTypes.TEXT,
         officer: DataTypes.TEXT,
-        highest_compensated: DataTypes.TEXT
+        highest_compensated: DataTypes.TEXT,
+        key_employee: DataTypes.TEXT
     },{
         indexes: [{
             fields: ['filer_ein']

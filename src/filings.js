@@ -81,6 +81,7 @@ var fieldMap = {
     'Officer.0': 'officer',
     'HighestCompensatedEmployeeInd.0': 'highest_compensated',
     'HighestCompensatedEmployee.0': 'highest_compensated',
+    'KeyEmployee.0': 'key_employee',
     'ReportableCompFromOrgAmt.0': 'org_compensation',
     'ReportableCompFromOrganization.0': 'org_compensation',
     'Compensation.0': 'org_compensation',
@@ -346,7 +347,7 @@ models.sync(function(err) {
 
     var dir = __dirname + '/data';
 
-    var q = async.queue(importTable, 2);
+    var q = async.queue(importTable, 1);
 
     rread
         .fileSync(dir)
