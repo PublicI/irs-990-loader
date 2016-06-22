@@ -44,16 +44,16 @@ var fieldMap = {
     'ForeignAddress.0.CountryCd.0': 'prefix_country',
     'ForeignAddress.0.Country.0': 'prefix_country',
     'AddressForeign.0.Country.0': 'prefix_country',
-    'USAddress.0.ZIPCode.0': 'recipient_zip',
-    'USAddress.0.ZIPCd.0': 'recipient_zip',
-    'AddressUS.0.ZIPCode.0': 'recipient_zip',
-    'ForeignAddress.0.PostalCode.0': 'recipient_zip',
-    'ForeignAddress.0.ForeignPostalCd.0': 'recipient_zip',
-    'AddressForeign.0.PostalCode.0': 'recipient_zip',
-    'RecipientEIN.0': 'recipient_ein',
-    'EINOfRecipient.0': 'recipient_ein',
-    'IRCSectionDesc.0': 'recipient_tax_section',
-    'IRCSection.0': 'recipient_tax_section',
+    'USAddress.0.ZIPCode.0': 'prefix_zip',
+    'USAddress.0.ZIPCd.0': 'prefix_zip',
+    'AddressUS.0.ZIPCode.0': 'prefix_zip',
+    'ForeignAddress.0.PostalCode.0': 'prefix_zip',
+    'ForeignAddress.0.ForeignPostalCd.0': 'prefix_zip',
+    'AddressForeign.0.PostalCode.0': 'prefix_zip',
+    'RecipientEIN.0': 'prefix_ein',
+    'EINOfRecipient.0': 'prefix_ein',
+    'IRCSectionDesc.0': 'prefix_tax_section',
+    'IRCSection.0': 'prefix_tax_section',
     'CashGrantAmt.0': 'cash_amt',
     'AmountOfCashGrant.0': 'cash_amt',
     'NonCashAssistanceAmt.0': 'non_cash_amt',
@@ -68,20 +68,20 @@ var fieldMap = {
     'PersonName.0._': 'prefix_name',
     'PersonName.0': 'prefix_name',
     'BusinessName.0.BusinessNameLine1.0': 'prefix_name',
-    'BusinessName.0.BusinessNameLine2.0': 'prefix_business_name',
+    'BusinessName.0.BusinessNameLine2.0': 'business_name',
     'TitleTxt.0': 'prefix_title',
     'Title.0': 'prefix_title',
-    'AverageHoursPerWeekRt.0': 'prefix_hours',
-    'AvgHoursPerWkDevotedToPosition.0': 'prefix_hours',
-    'IndividualTrusteeOrDirectorInd.0': 'prefix_board_member',
-    'OfficerInd.0': 'prefix_officer',
-    'HighestCompensatedEmployeeInd.0': 'prefix_highest_compensated',
-    'ReportableCompFromOrgAmt.0': 'prefix_org_compensation',
-    'ReportableCompFromRltdOrgAmt.0': 'prefix_related_org_compensation',
-    'OtherCompensationAmt.0': 'prefix_other_compensation',
-    'ExpenseAccountOtherAllowances.0': 'prefix_expenses_or_allowances',
-    'ContriToEmplBenefitPlansEtc.0': 'prefix_benefit_contribution',
-    'Compensation.0': 'prefix_org_compensation',
+    'AverageHoursPerWeekRt.0': 'hours',
+    'AvgHoursPerWkDevotedToPosition.0': 'hours',
+    'IndividualTrusteeOrDirectorInd.0': 'board_member',
+    'OfficerInd.0': 'officer',
+    'HighestCompensatedEmployeeInd.0': 'highest_compensated',
+    'ReportableCompFromOrgAmt.0': 'org_compensation',
+    'Compensation.0': 'org_compensation',
+    'ReportableCompFromRltdOrgAmt.0': 'related_org_compensation',
+    'OtherCompensationAmt.0': 'other_compensation',
+    'ExpenseAccountOtherAllowances.0': 'expenses_or_allowances',
+    'ContriToEmplBenefitPlansEtc.0': 'benefit_contribution',
     'PersonName.0.$.referenceDocumentId': 'reference_document_id',
     'BusinessName.0.$.referenceDocumentId': 'reference_document_id'
 };
@@ -111,7 +111,7 @@ function importTable(task, callback) {
             numeral(processed + tasks.length).format() + ' of ' +
             numeral(queued).format());
 
-        models.irs990_grant
+        models.irs990_person
             .bulkCreate(tasks, {
                 transaction: transaction
             })
@@ -165,7 +165,7 @@ function importTable(task, callback) {
     }
 
     function truncate(cb) {
-        models.irs990_grant.truncate({
+        models.irs990_person.truncate({
                 transaction: transaction
             })
             .then(cb);
@@ -219,7 +219,7 @@ function importTable(task, callback) {
                     return person;
                 });
 
-            // console.log(people);
+            console.log(people);
         }
         return people;
     }
@@ -280,7 +280,7 @@ function importTable(task, callback) {
             // filing.grants = processGrants(filing, result);
             filing.grants = [];
 
-            filing.officers = processPeople(filing, result);
+            filing.people = processPeople(filing, result);
         }
 
         return filing;
@@ -299,13 +299,13 @@ function importTable(task, callback) {
 
                 var filing = processFiling(result);
 
-                if (filing && filing.grants.length > 0) {
+                if (filing && filing.people.length > 0) {
                     startTransaction(function(t) {
                         transaction = t;
 
-                        queued += filing.grants.length;
+                        queued += filing.people.length;
 
-                        cargo.push(filing.grants);
+                        cargo.push(filing.people);
 
                         cargo.drain = done;
 
