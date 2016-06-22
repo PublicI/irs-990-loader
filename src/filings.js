@@ -95,7 +95,8 @@ var fieldMap = {
     'ContriToEmplBenefitPlansEtc.0': 'benefit_contribution',
     'InstitutionalTrustee.0': 'institutional_trustee',
     'PersonName.0.$.referenceDocumentId': 'reference_document_id',
-    'BusinessName.0.$.referenceDocumentId': 'reference_document_id'
+    'BusinessName.0.$.referenceDocumentId': 'reference_document_id',
+    'Former.0': 'former'
 };
 
 function importTable(task, callback) {
