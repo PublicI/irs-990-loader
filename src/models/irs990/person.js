@@ -16,10 +16,12 @@ module.exports = function(sequelize, DataTypes) {
         other_compensation: DataTypes.DECIMAL(12,2),
         benefit_contribution: DataTypes.DECIMAL(12,2),
         expenses_or_allowances: DataTypes.DECIMAL(12,2),
-        board_member: DataTypes.TEXT,
+        trustee_or_director: DataTypes.TEXT,
+        institutional_trustee: DataTypes.TEXT,
         officer: DataTypes.TEXT,
         highest_compensated: DataTypes.TEXT,
-        key_employee: DataTypes.TEXT
+        key_employee: DataTypes.TEXT,
+        former: DataTypes.TEXT
     },{
         indexes: [{
             fields: ['filer_ein']
