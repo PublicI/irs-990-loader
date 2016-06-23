@@ -11,6 +11,7 @@ module.exports = function(sequelize, DataTypes) {
         person_state: DataTypes.TEXT,
         person_zip: DataTypes.TEXT,
         hours: DataTypes.DECIMAL(12,2),
+        related_org_hours: DataTypes.DECIMAL(12,2),
         org_compensation: DataTypes.DECIMAL(12,2),
         related_org_compensation: DataTypes.DECIMAL(12,2),
         other_compensation: DataTypes.DECIMAL(12,2),

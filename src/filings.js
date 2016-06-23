@@ -84,6 +84,7 @@ var fieldMap = {
     'HighestCompensatedEmployeeInd.0': 'highest_compensated',
     'HighestCompensatedEmployee.0': 'highest_compensated',
     'KeyEmployee.0': 'key_employee',
+    'KeyEmployeeInd.0': 'key_employee',
     'ReportableCompFromOrgAmt.0': 'org_compensation',
     'ReportableCompFromOrganization.0': 'org_compensation',
     'Compensation.0': 'org_compensation',
@@ -94,9 +95,14 @@ var fieldMap = {
     'ExpenseAccountOtherAllowances.0': 'expenses_or_allowances',
     'ContriToEmplBenefitPlansEtc.0': 'benefit_contribution',
     'InstitutionalTrustee.0': 'institutional_trustee',
+    'InstitutionalTrusteeInd.0': 'institutional_trustee',
     'PersonName.0.$.referenceDocumentId': 'reference_document_id',
     'BusinessName.0.$.referenceDocumentId': 'reference_document_id',
-    'Former.0': 'former'
+    'PersonName.0.$.referenceDocumentName': 'reference_document_id',
+    'Former.0': 'former',
+    'FormerOfcrDirectorTrusteeInd.0': 'former',
+    'AverageHoursPerWeekRltdOrgRt.0': 'related_org_hours',
+    'AverageHoursPerWeekRelated.0': 'related_org_hours'
 };
 
 function importTable(task, callback) {
