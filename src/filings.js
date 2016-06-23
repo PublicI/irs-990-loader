@@ -211,21 +211,37 @@ function importTable(task, callback) {
         if (result.Return.ReturnData &&
             result.Return.ReturnData[0]) {
 
-            if (result.Return.ReturnData[0].IRS990 &&
-                    result.Return.ReturnData[0].IRS990[0].Form990PartVIISectionAGrp) {
-                people = result.Return.ReturnData[0].IRS990[0].Form990PartVIISectionAGrp;
+            var form = null;
+
+            if (result.Return.ReturnData[0].IRS990) {
+                form = result.Return.ReturnData[0].IRS990[0];
             }
-            if (result.Return.ReturnData[0].IRS990 &&
-                    result.Return.ReturnData[0].IRS990[0].Form990PartVIISectionA) {
-                people = result.Return.ReturnData[0].IRS990[0].Form990PartVIISectionA;
+            if (result.Return.ReturnData[0].IRS990EZ) {
+                form = result.Return.ReturnData[0].IRS990EZ[0];
             }
-            if (result.Return.ReturnData[0].IRS990EZ && result.Return.ReturnData[0].IRS990EZ[0].OfficerDirectorTrusteeKeyEmpl) {
-                people = result.Return.ReturnData[0].IRS990EZ[0].OfficerDirectorTrusteeKeyEmpl;
+            if (result.Return.ReturnData[0].IRS990PF) {
+                form = result.Return.ReturnData[0].IRS990PF[0];
             }
-            if (result.Return.ReturnData[0].IRS990PF &&
-                result.Return.ReturnData[0].IRS990PF[0].OfcrDirTrusteesKeyEmployeeInfo &&
-                result.Return.ReturnData[0].IRS990PF[0].OfcrDirTrusteesKeyEmployeeInfo[0].OfcrDirTrusteesOrKeyEmployee) {
-                people = result.Return.ReturnData[0].IRS990PF[0].OfcrDirTrusteesKeyEmployeeInfo[0].OfcrDirTrusteesOrKeyEmployee;
+
+            if (form.Form990PartVIISectionAGrp) {
+                people = form.Form990PartVIISectionAGrp;
+            }
+            if (form.Form990PartVIISectionA) {
+                people = form.Form990PartVIISectionA;
+            }
+            if (form.OfficerDirectorTrusteeKeyEmpl) {
+                people = form.OfficerDirectorTrusteeKeyEmpl;
+            }
+            if (form.OfcrDirTrusteesKeyEmployeeInfo &&
+                form.OfcrDirTrusteesKeyEmployeeInfo[0].OfcrDirTrusteesOrKeyEmployee) {
+                people = form.OfcrDirTrusteesKeyEmployeeInfo[0].OfcrDirTrusteesOrKeyEmployee;
+            }
+            if (form.OfficerDirTrstKeyEmplInfoGrp && 
+                form.OfficerDirTrstKeyEmplInfoGrp[0].OfficerDirTrstKeyEmplGrp) {
+                people = form.OfficerDirTrstKeyEmplInfoGrp[0].OfficerDirTrstKeyEmplGrp;
+            }
+            if (form.OfficerDirectorTrusteeEmplGrp) {
+                people = form.OfficerDirectorTrusteeEmplGrp;
             }
 
             people = people
