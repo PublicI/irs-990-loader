@@ -106,7 +106,7 @@ var fieldMap = {
 };
 
 function importTable(task, callback) {
-    // console.log('inserting rows from ' + task.file);
+    console.log('inserting rows from ' + task.file);
 
     var transaction = null;
 
@@ -125,10 +125,11 @@ function importTable(task, callback) {
             cb();
             return;
         }
-
+/*
         console.log('processing ' + numeral(processed).format() + ' - ' +
             numeral(processed + tasks.length).format() + ' of ' +
             numeral(queued).format());
+*/
 
         models.irs990_person
             .bulkCreate(tasks, {
@@ -170,7 +171,7 @@ function importTable(task, callback) {
             finished = true;
 
             if (transaction) {
-                console.log('commiting transaction');
+                // console.log('commiting transaction');
 
                 transaction.commit()
                     .then(function(result) {
