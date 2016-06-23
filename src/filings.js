@@ -106,7 +106,7 @@ var fieldMap = {
 };
 
 function importTable(task, callback) {
-    console.log('inserting rows from ' + task.file);
+    // console.log('inserting rows from ' + task.file);
 
     var transaction = null;
 
@@ -242,7 +242,9 @@ function importTable(task, callback) {
                     return person;
                 });
 
-            console.log(people.length);
+            if (people.length === 0) {
+                console.log(task.file);
+            }
         }
         return people;
     }
@@ -322,6 +324,7 @@ function importTable(task, callback) {
 
                 var filing = processFiling(result);
 
+/*
                 if (filing && filing.people.length > 0) {
                     startTransaction(function(t) {
                         transaction = t;
@@ -336,9 +339,9 @@ function importTable(task, callback) {
                             done();
                         }
                     });
-                } else {
+                } else {*/
                     done();
-                }
+                //}
             });
         });
     }
