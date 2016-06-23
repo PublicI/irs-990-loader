@@ -190,15 +190,15 @@ function importTable(task, callback) {
             .then(cb);
     }
 
-    function mapFields(prefix,obj) {
+    function mapFields(prefix, obj) {
         obj = flat(obj);
         var row = {};
 
         Object.keys(obj).forEach(function(key) {
             if (key in fieldMap) {
-                row[fieldMap[key].replace('prefix_',prefix + '_')] = obj[key];
+                row[fieldMap[key].replace('prefix_', prefix + '_')] = obj[key];
             } else {
-                console.error('unknown field: ' + key, ' ', obj[key]);
+                console.error('error: unknown field ' + key, ' ', obj[key]);
             }
         });
 
@@ -223,6 +223,10 @@ function importTable(task, callback) {
                 form = result.Return.ReturnData[0].IRS990PF[0];
             }
 
+            if (!form) {
+                console.error('error: no form found in ' + task.file);
+            }
+
             if (form.Form990PartVIISectionAGrp) {
                 people = form.Form990PartVIISectionAGrp;
             }
@@ -232,11 +236,14 @@ function importTable(task, callback) {
             if (form.OfficerDirectorTrusteeKeyEmpl) {
                 people = form.OfficerDirectorTrusteeKeyEmpl;
             }
+            if (form.OfcrDirTrusteesOrKeyEmployee) {
+                people = form.OfcrDirTrusteesOrKeyEmployee;
+            }
             if (form.OfcrDirTrusteesKeyEmployeeInfo &&
                 form.OfcrDirTrusteesKeyEmployeeInfo[0].OfcrDirTrusteesOrKeyEmployee) {
                 people = form.OfcrDirTrusteesKeyEmployeeInfo[0].OfcrDirTrusteesOrKeyEmployee;
             }
-            if (form.OfficerDirTrstKeyEmplInfoGrp && 
+            if (form.OfficerDirTrstKeyEmplInfoGrp &&
                 form.OfficerDirTrstKeyEmplInfoGrp[0].OfficerDirTrstKeyEmplGrp) {
                 people = form.OfficerDirTrstKeyEmplInfoGrp[0].OfficerDirTrstKeyEmplGrp;
             }
@@ -245,7 +252,7 @@ function importTable(task, callback) {
             }
 
             people = people
-                .map(mapFields.bind(this,'person'))
+                .map(mapFields.bind(this, 'person'))
                 .map(function(person) {
                     person.filer_ein = filing.ein;
                     person.tax_period = filing.tax_period;
@@ -259,7 +266,7 @@ function importTable(task, callback) {
                 });
 
             if (people.length === 0) {
-                console.log(task.file);
+                console.error('error: no people in' + task.file);
             }
         }
         return people;
@@ -273,7 +280,7 @@ function importTable(task, callback) {
             result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable) {
 
             grants = result.Return.ReturnData[0]
-                .IRS990ScheduleI[0].RecipientTable.map(mapFields.bind(this,'recipient'))
+                .IRS990ScheduleI[0].RecipientTable.map(mapFields.bind(this, 'recipient'))
                 .map(function(grant) {
                     grant.filer_ein = filing.ein;
                     grant.tax_period = filing.tax_period;
@@ -340,7 +347,7 @@ function importTable(task, callback) {
 
                 var filing = processFiling(result);
 
-/*
+
                 if (filing && filing.people.length > 0) {
                     startTransaction(function(t) {
                         transaction = t;
@@ -355,9 +362,9 @@ function importTable(task, callback) {
                             done();
                         }
                     });
-                } else {*/
+                } else {
                     done();
-                //}
+                }
             });
         });
     }
