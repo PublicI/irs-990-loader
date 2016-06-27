@@ -106,7 +106,7 @@ var fieldMap = {
 };
 
 function importTable(task, callback) {
-    console.log('inserting rows from ' + task.file);
+    //console.log('inserting rows from ' + task.file);
 
     var transaction = null;
 
@@ -209,10 +209,24 @@ function importTable(task, callback) {
     function processDonors(filing, result) {
         var donors = [];
 
-        if (result.Return.ReturnData.IRS990ScheduleB) {
-            var schedule = result.Return.ReturnData.IRS990ScheduleB;
+        if (result.Return.ReturnData[0].IRS990ScheduleB && !result.Return.ReturnData[0].IRS990PF) {
+            var schedule = result.Return.ReturnData[0].IRS990ScheduleB;
 
-            console.log(schedule);
+            var obj = flat(schedule);
+
+            var first = true;
+
+            Object.keys(obj).forEach(function(key) {
+                if (obj[key] && obj[key] != 'RESTRICTED' &&
+                    key != '0.$.documentId' && key != '0.$.softwareId' && key != '0.$.softwareVersion') {
+                    if (first) {
+                        first = false;
+                        console.log(task.file);
+                    }
+
+                    console.log(key,obj[key]);
+                }
+            });
         }
     }
 
