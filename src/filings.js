@@ -206,6 +206,16 @@ function importTable(task, callback) {
         return row;
     }
 
+    function processDonors(filing, result) {
+        var donors = [];
+
+        if (result.Return.ReturnData.IRS990ScheduleB) {
+            var schedule = result.Return.ReturnData.IRS990ScheduleB;
+
+            console.log(schedule);
+        }
+    }
+
     function processPeople(filing, result) {
         var people = [];
 
@@ -329,7 +339,10 @@ function importTable(task, callback) {
             // filing.grants = processGrants(filing, result);
             filing.grants = [];
 
-            filing.people = processPeople(filing, result);
+            // filing.people = processPeople(filing, result);
+            filing.people = [];
+
+            filing.donors = processDonors(filing, result);
         }
 
         return filing;
@@ -347,7 +360,6 @@ function importTable(task, callback) {
                 }
 
                 var filing = processFiling(result);
-
 
                 if (filing && filing.people.length > 0) {
                     startTransaction(function(t) {
