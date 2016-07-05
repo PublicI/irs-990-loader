@@ -14,7 +14,7 @@ function getModels (options) {
             updatedAt: 'updated_date',
             underscored: true
         },
-        logging: false
+        logging: console.log
     });
 
     var db = {};
