@@ -206,6 +206,12 @@ function importTable(task, callback) {
         return row;
     }
 
+    function processPolitcalContribs(filing, result) {
+        if (result.ReturnData[0].IRS990ScheduleC) {
+            console.log(util.inspect(result.ReturnData[0].IRS990ScheduleC, { depth: null }));
+        }
+    }
+
     function processDonors(filing, result) {
         var donors = [];
 
@@ -349,6 +355,24 @@ function importTable(task, callback) {
 
             filing.ein = header.Filer[0].EIN[0];
             filing.object_id = fileName.replace('_public.xml', '');
+
+            var form = null;
+
+            if (result.Return.ReturnData[0].IRS990) {
+                form = result.Return.ReturnData[0].IRS990[0];
+            }
+            if (result.Return.ReturnData[0].IRS990EZ) {
+                form = result.Return.ReturnData[0].IRS990EZ[0];
+            }
+            if (result.Return.ReturnData[0].IRS990PF) {
+                form = result.Return.ReturnData[0].IRS990PF[0];
+            }
+
+            if (!form) {
+                console.error('error: no form found in ' + task.file);
+            }
+
+            console.log(flat(form));
 
             // filing.grants = processGrants(filing, result);
             filing.grants = [];
