@@ -209,7 +209,7 @@ function importTable(task, callback) {
     function processDonors(filing, result) {
         var donors = [];
 
-        if (result.Return.ReturnData[0].IRS990ScheduleB && !result.Return.ReturnData[0].IRS990PF) {
+        if (result.Return.ReturnData[0].IRS990ScheduleB) {
             var schedule = result.Return.ReturnData[0].IRS990ScheduleB;
 
             var obj = flat(schedule);
