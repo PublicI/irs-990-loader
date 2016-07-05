@@ -68,10 +68,10 @@ var fieldMap = {
     'PersonName.0._': 'prefix_name',
     'PersonName.0': 'prefix_name',
     'NamePerson.0': 'prefix_name',
-    'BusinessName.0.BusinessNameLine1.0': 'prefix_name',
-    'BusinessName.0.BusinessNameLine2.0': 'business_name',
-    'NameBusiness.0.BusinessNameLine1.0': 'prefix_name',
-    'NameBusiness.0.BusinessNameLine2.0': 'business_name',
+    'BusinessName.0.BusinessNameLine1.0': 'business_name_1',
+    'BusinessName.0.BusinessNameLine2.0': 'business_name_2',
+    'NameBusiness.0.BusinessNameLine1.0': 'business_name_1',
+    'NameBusiness.0.BusinessNameLine2.0': 'business_name_2',
     'TitleTxt.0': 'prefix_title',
     'Title.0': 'prefix_title',
     'AverageHoursPerWeekRt.0': 'hours',
@@ -102,7 +102,19 @@ var fieldMap = {
     'Former.0': 'former',
     'FormerOfcrDirectorTrusteeInd.0': 'former',
     'AverageHoursPerWeekRltdOrgRt.0': 'related_org_hours',
-    'AverageHoursPerWeekRelated.0': 'related_org_hours'
+    'AverageHoursPerWeekRelated.0': 'related_org_hours',
+    'ContributorNameIndividual.0': 'prefix_name',
+    'ContributorNumber.0': 'prefix_number',
+    'ContributorAddressUS.0.AddressLine1.0': 'prefix_street_1',
+    'ContributorAddressUS.0.City.0': 'prefix_city',
+    'ContributorAddressUS.0.State.0': 'prefix_state',
+    'ContributorAddressUS.0.ZIPCode.0': 'prefix_zip',
+    'AggregateContributions.0': 'prefix_aggregate_amt',
+    'PersonContributionType.0': 'contribution_type_person',
+    'NoncashContributionType.0': 'contribution_type_noncash',
+    'PayrollContributionType.0': 'contribution_type_payroll',
+    'ContributorNameBusiness.0.BusinessNameLine1.0': 'business_name_1',
+    'ContributorNameBusiness.0.BusinessNameLine2.0': 'business_name_2',
 };
 
 function importTable(task, callback) {
@@ -212,28 +224,24 @@ function importTable(task, callback) {
         }
     }
 
-    function processDonors(filing, result) {
-        var donors = [];
+    function processContributions(filing, result) {
+        var contributions = [];
 
         if (result.Return.ReturnData[0].IRS990ScheduleB) {
-            var schedule = result.Return.ReturnData[0].IRS990ScheduleB;
+            var schedule = result.Return.ReturnData[0].IRS990ScheduleB[0];
 
-            var obj = flat(schedule);
-
-            var first = true;
-
-            Object.keys(obj).forEach(function(key) {
-                if (obj[key] && obj[key] != 'RESTRICTED' &&
-                    key != '0.$.documentId' && key != '0.$.softwareId' && key != '0.$.softwareVersion') {
-                    if (first) {
-                        first = false;
-                        console.log(task.file);
-                    }
-
-                    console.log(key,obj[key]);
-                }
-            });
+            if (schedule.ContributorInfo) {
+                contributions = schedule.ContributorInfo
+                                    .map(mapFields.bind(this, 'donor'));
+                                    /*
+                                    .map(function (donor) {
+                                        console.log();
+                                    });*/
+                console.log(contributions);
+            }
         }
+
+        return contributions;
     }
 
     function processPeople(filing, result) {
@@ -291,6 +299,14 @@ function importTable(task, callback) {
 
                     if (person.person_street_1) {
                         person.person_street = person.person_street_1;
+                    }
+
+                    person.business_name = null;
+                    if (person.business_name_1) {
+                        person.business_name = person.business_name_1.trim();
+                    }
+                    if (person.business_name_2) {
+                        person.business_name = ' ' + person.business_name_2.trim();
                     }
 
                     return person;
@@ -372,7 +388,7 @@ function importTable(task, callback) {
                 console.error('error: no form found in ' + task.file);
             }
 
-            console.log(flat(form));
+            console.log(form);
 
             // filing.grants = processGrants(filing, result);
             filing.grants = [];
@@ -380,7 +396,7 @@ function importTable(task, callback) {
             // filing.people = processPeople(filing, result);
             filing.people = [];
 
-            filing.donors = processDonors(filing, result);
+            filing.donors = processContributions(filing, result);
         }
 
         return filing;
