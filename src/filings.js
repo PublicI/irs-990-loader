@@ -8,7 +8,7 @@ var _ = require('lodash'),
     util = require('util'),
     flat = require('flat'),
     path = require('path'),
-    readdirp = require('readdirp');
+    rread = require('readdir-recursive');
 
 var fieldMap = {
     'RecipientBusinessName.0.BusinessNameLine1.0': 'prefix_name_1',
@@ -461,10 +461,14 @@ models.sync(function(err) {
 
     var q = async.queue(importTable, 1);
 
-    readdirp({ root: dir, fileFilter: '*.xml' })
-        .on('data', function (entry) {
+    rread
+        .fileSync(dir)
+        .filter(function(file) {
+            return (file.slice(-4) === '.xml');
+        })
+        .forEach(function(file) {
             q.push({
-                file: entry.path
+                file: file
             });
         });
 
