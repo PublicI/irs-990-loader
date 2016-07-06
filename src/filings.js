@@ -8,7 +8,7 @@ var _ = require('lodash'),
     util = require('util'),
     flat = require('flat'),
     path = require('path'),
-    rread = require('readdir-recursive');
+    readdirp = require('readdirp');
 
 var fieldMap = {
     'RecipientBusinessName.0.BusinessNameLine1.0': 'prefix_name_1',
@@ -355,6 +355,8 @@ function importTable(task, callback) {
 
                     return grant;
                 });
+
+            console.log(grants);
         }
         return grants;
     }
@@ -459,14 +461,10 @@ models.sync(function(err) {
 
     var q = async.queue(importTable, 1);
 
-    rread
-        .fileSync(dir)
-        .filter(function(file) {
-            return (file.slice(-4) === '.xml');
-        })
-        .forEach(function(file) {
+    readdirp({ root: dir, fileFilter: '*.xml' })
+        .on('data', function (entry) {
             q.push({
-                file: file
+                file: entry.path
             });
         });
 
