@@ -323,11 +323,19 @@ function importTable(task, callback) {
         var grants = [];
 
         if (result.Return.ReturnData &&
-            result.Return.ReturnData[0] && result.Return.ReturnData[0].IRS990ScheduleI &&
-            result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable) {
+            result.Return.ReturnData[0]) {
 
-            grants = result.Return.ReturnData[0]
-                .IRS990ScheduleI[0].RecipientTable.map(mapFields.bind(this, 'recipient'))
+            if (result.Return.ReturnData[0].IRS990PF && 
+                result.Return.ReturnData[0].IRS990PF[0].GrantOrContributionPdDurYrGrp) {
+                grants = result.Return.ReturnData[0].IRS990PF[0].GrantOrContributionPdDurYrGrp;
+            }
+
+            if (result.Return.ReturnData[0].IRS990ScheduleI &&
+                result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable) {
+                grants = result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable;
+            }
+
+            grants = grants.map(mapFields.bind(this, 'recipient'))
                 .map(function(grant) {
                     grant.filer_ein = filing.ein;
                     grant.tax_period = filing.tax_period;
@@ -388,15 +396,14 @@ function importTable(task, callback) {
                 console.error('error: no form found in ' + task.file);
             }
 
-            console.log(form);
-
-            // filing.grants = processGrants(filing, result);
-            filing.grants = [];
+            filing.grants = processGrants(filing, result);
+            // filing.grants = [];
 
             // filing.people = processPeople(filing, result);
             filing.people = [];
 
-            filing.donors = processContributions(filing, result);
+            // filing.donors = processContributions(filing, result);
+            filing.donors = [];
         }
 
         return filing;
