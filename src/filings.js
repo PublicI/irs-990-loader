@@ -8,7 +8,7 @@ var _ = require('lodash'),
     util = require('util'),
     flat = require('flat'),
     path = require('path'),
-    rread = require('readdir-recursive');
+    readdir = require('fs-readdir');
 
 var fieldMap = {
     'RecipientBusinessName.0.BusinessNameLine1.0': 'prefix_name_1',
@@ -117,8 +117,12 @@ var fieldMap = {
     'ContributorNameBusiness.0.BusinessNameLine2.0': 'business_name_2',
 };
 
-function importTable(task, callback) {
-    console.log('inserting rows from ' + task.file);
+function importTable(file, callback) {
+    var task = {
+        file: file
+    };
+
+    // console.log('inserting rows from ' + task.file);
 
     var transaction = null;
 
@@ -356,7 +360,10 @@ function importTable(task, callback) {
                     return grant;
                 });
 
-            console.log(grants);
+            if (result.Return.ReturnData[0].IRS990PF) {
+                console.log(task.file);
+                console.log(grants);
+            }
         }
         return grants;
     }
@@ -461,19 +468,18 @@ models.sync(function(err) {
 
     var q = async.queue(importTable, 1);
 
-    rread
-        .fileSync(dir)
-        .filter(function(file) {
-            return (file.slice(-4) === '.xml');
+    var stream = readdir(dir)
+        .on('finish', function(obj) {
+            q.drain = function() {
+                console.log('done');
+            };
         })
-        .forEach(function(file) {
-            q.push({
-                file: file
+        .on('data', function(files) {
+            files.forEach(function (file) {
+                if (file.slice(-4) === '.xml') {
+                    q.push(file);
+                }
             });
         });
-
-    q.drain = function() {
-        console.log('done');
-    };
 
 });
