@@ -8,7 +8,7 @@ var _ = require('lodash'),
     util = require('util'),
     flat = require('flat'),
     path = require('path'),
-    readdir = require('fs-readdir');
+    rread = require('fs-readdir-recursive');
 
 var fieldMap = {
     'RecipientBusinessName.0.BusinessNameLine1.0': 'prefix_name_1',
@@ -17,6 +17,7 @@ var fieldMap = {
     'RecipientBusinessName.0.BusinessNameLine2.0': 'prefix_name_2',
     'RecipientBusinessName.0.BusinessNameLine2Txt.0': 'prefix_name_2',
     'RecipientNameBusiness.0.BusinessNameLine2.0': 'prefix_name_2',
+    'RecipientPersonNm.0': 'prefix_name',
     'USAddress.0.AddressLine1.0': 'prefix_street_1',
     'AddressUS.0.AddressLine1.0': 'prefix_street_1',
     'USAddress.0.AddressLine1Txt.0': 'prefix_street_1',
@@ -29,32 +30,50 @@ var fieldMap = {
     'ForeignAddress.0.AddressLine2Txt.0': 'prefix_street_2',
     'ForeignAddress.0.AddressLine2.0': 'prefix_street_2',
     'AddressForeign.0.AddressLine2.0': 'prefix_street_2',
+    'RecipientUSAddress.0.AddressLine1.0': 'prefix_street_1',
+    'RecipientForeignAddress.0.AddressLine1.0': 'prefix_street_1',
+    'RecipientForeignAddress.0.AddressLine2.0': 'prefix_street_2',
+    'RecipientUSAddress.0.AddressLine2.0': 'prefix_street_2',
+    'RecipientUSAddress.0.AddressLine1Txt.0': 'prefix_street_1',
+    'RecipientUSAddress.0.AddressLine2Txt.0': 'prefix_street_2',
     'USAddress.0.City.0': 'prefix_city',
     'USAddress.0.CityNm.0': 'prefix_city',
     'ForeignAddress.0.CityNm.0': 'prefix_city',
     'AddressUS.0.City.0': 'prefix_city',
     'ForeignAddress.0.City.0': 'prefix_city',
     'AddressForeign.0.City.0': 'prefix_city',
+    'RecipientUSAddress.0.City.0': 'prefix_city',
+    'RecipientForeignAddress.0.City.0': 'prefix_city',
+    'RecipientUSAddress.0.CityNm.0': 'prefix_city',
+    'RecipientForeignAddress.0.CityNm.0': 'prefix_city',
     'USAddress.0.State.0': 'prefix_state',
     'AddressUS.0.State.0': 'prefix_state',
+    'RecipientUSAddress.0.State.0': 'prefix_state',
     'USAddress.0.StateAbbreviationCd.0': 'prefix_state',
+    'RecipientUSAddress.0.StateAbbreviationCd.0': 'prefix_state',
     'ForeignAddress.0.ProvinceOrStateNm.0': 'prefix_state',
+    'RecipientForeignAddress.0.ProvinceOrState.0': 'prefix_state',
     'ForeignAddress.0.ProvinceOrState.0': 'prefix_state',
     'AddressForeign.0.ProvinceOrState.0': 'prefix_state',
     'ForeignAddress.0.CountryCd.0': 'prefix_country',
     'ForeignAddress.0.Country.0': 'prefix_country',
     'AddressForeign.0.Country.0': 'prefix_country',
+    'RecipientForeignAddress.0.Country.0': 'prefix_country',
+    'RecipientForeignAddress.0.CountryCd.0': 'prefix_country',
     'USAddress.0.ZIPCode.0': 'prefix_zip',
     'USAddress.0.ZIPCd.0': 'prefix_zip',
     'AddressUS.0.ZIPCode.0': 'prefix_zip',
+    'RecipientUSAddress.0.ZIPCode.0': 'prefix_zip',
     'ForeignAddress.0.PostalCode.0': 'prefix_zip',
     'ForeignAddress.0.ForeignPostalCd.0': 'prefix_zip',
     'AddressForeign.0.PostalCode.0': 'prefix_zip',
+    'RecipientUSAddress.0.ZIPCd.0': 'prefix_zip',
     'RecipientEIN.0': 'prefix_ein',
     'EINOfRecipient.0': 'prefix_ein',
     'IRCSectionDesc.0': 'prefix_tax_section',
     'IRCSection.0': 'prefix_tax_section',
     'CashGrantAmt.0': 'cash_amt',
+    'Amt.0': 'cash_amt',
     'AmountOfCashGrant.0': 'cash_amt',
     'NonCashAssistanceAmt.0': 'non_cash_amt',
     'AmountOfNonCashAssistance.0': 'non_cash_amt',
@@ -109,19 +128,19 @@ var fieldMap = {
     'ContributorAddressUS.0.City.0': 'prefix_city',
     'ContributorAddressUS.0.State.0': 'prefix_state',
     'ContributorAddressUS.0.ZIPCode.0': 'prefix_zip',
+    'RecipientForeignAddress.0.PostalCode.0': 'prefix_zip',
     'AggregateContributions.0': 'prefix_aggregate_amt',
     'PersonContributionType.0': 'contribution_type_person',
     'NoncashContributionType.0': 'contribution_type_noncash',
     'PayrollContributionType.0': 'contribution_type_payroll',
     'ContributorNameBusiness.0.BusinessNameLine1.0': 'business_name_1',
     'ContributorNameBusiness.0.BusinessNameLine2.0': 'business_name_2',
+    'RecipientRelationshipTxt.0': 'prefix_relationship',
+    'RecipientFoundationStatusTxt.0': 'prefix_tax_section',
+    'GrantOrContributionPurposeTxt.0': 'purpose'
 };
 
-function importTable(file, callback) {
-    var task = {
-        file: file
-    };
-
+function importTable(task, callback) {
     // console.log('inserting rows from ' + task.file);
 
     var transaction = null;
@@ -330,13 +349,20 @@ function importTable(file, callback) {
             result.Return.ReturnData[0]) {
 
             if (result.Return.ReturnData[0].IRS990PF && 
-                result.Return.ReturnData[0].IRS990PF[0].GrantOrContributionPdDurYrGrp) {
-                grants = result.Return.ReturnData[0].IRS990PF[0].GrantOrContributionPdDurYrGrp;
+                result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp &&
+                result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp[0].GrantOrContributionPdDurYrGrp) {
+                grants = result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp[0].GrantOrContributionPdDurYrGrp;
+                // console.log(grants);
             }
 
             if (result.Return.ReturnData[0].IRS990ScheduleI &&
                 result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable) {
                 grants = result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable;
+            }
+
+            if (result.Return.ReturnData[0].IRS990PF) {
+                console.log(task.file);
+                // console.log(grants);
             }
 
             grants = grants.map(mapFields.bind(this, 'recipient'))
@@ -360,10 +386,6 @@ function importTable(file, callback) {
                     return grant;
                 });
 
-            if (result.Return.ReturnData[0].IRS990PF) {
-                console.log(task.file);
-                console.log(grants);
-            }
         }
         return grants;
     }
@@ -459,6 +481,8 @@ function importTable(file, callback) {
 
 }
 
+var dir = __dirname + '/data';
+
 models.sync(function(err) {
     if (err) {
         throw err;
@@ -468,18 +492,18 @@ models.sync(function(err) {
 
     var q = async.queue(importTable, 1);
 
-    var stream = readdir(dir)
-        .on('finish', function(obj) {
-            q.drain = function() {
-                console.log('done');
-            };
+    rread(dir)
+        .filter(function(file) {
+            return (file.slice(-4) === '.xml');
         })
-        .on('data', function(files) {
-            files.forEach(function (file) {
-                if (file.slice(-4) === '.xml') {
-                    q.push(file);
-                }
+        .forEach(function(file) {
+            q.push({
+                file: dir + '/' + file
             });
         });
+
+    q.drain = function() {
+        console.log('done');
+    };
 
 });

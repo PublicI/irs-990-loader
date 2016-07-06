@@ -1,4 +1,4 @@
-var rread = require('readdir-recursive'),
+var rread = require('fs-readdir-recursive'),
     path = require('path'),
     Sequelize = require('sequelize');
 
@@ -19,8 +19,7 @@ function getModels (options) {
 
     var db = {};
 
-    rread
-        .fileSync(__dirname)
+    rread(__dirname)
         .filter(function(file) {
             file = path.basename(file);
             return (file.slice(-3) === '.js') && (file !== basename);
