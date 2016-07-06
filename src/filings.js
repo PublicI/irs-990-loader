@@ -17,7 +17,7 @@ var fieldMap = {
     'RecipientBusinessName.0.BusinessNameLine2.0': 'prefix_name_2',
     'RecipientBusinessName.0.BusinessNameLine2Txt.0': 'prefix_name_2',
     'RecipientNameBusiness.0.BusinessNameLine2.0': 'prefix_name_2',
-    'RecipientPersonNm.0': 'prefix_name',
+    'RecipientPersonNm.0': 'prefix_name_1',
     'USAddress.0.AddressLine1.0': 'prefix_street_1',
     'AddressUS.0.AddressLine1.0': 'prefix_street_1',
     'USAddress.0.AddressLine1Txt.0': 'prefix_street_1',
@@ -458,6 +458,8 @@ function importTable(task, callback) {
                         transaction = t;
 
                         queued += filing.grants.length;
+
+                        console.log(filing.grants);
 
                         cargo.push(filing.grants);
 
