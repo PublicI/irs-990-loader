@@ -166,7 +166,7 @@ function importTable(task, callback) {
             numeral(queued).format());
 */
 
-        models.irs990_person
+        models.irs990_grant
             .bulkCreate(tasks, {
                 transaction: transaction
             })
@@ -410,7 +410,7 @@ function importTable(task, callback) {
 
             filing.ein = header.Filer[0].EIN[0];
             filing.object_id = fileName.replace('_public.xml', '');
-
+/*
             var form = null;
 
             if (result.Return.ReturnData[0].IRS990) {
@@ -425,7 +425,7 @@ function importTable(task, callback) {
 
             if (!form) {
                 console.error('error: no form found in ' + task.file);
-            }
+            }*/
 
             filing.grants = processGrants(filing, result);
             // filing.grants = [];
