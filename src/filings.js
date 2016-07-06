@@ -351,7 +351,7 @@ function importTable(task, callback) {
             if (result.Return.ReturnData[0].IRS990PF && 
                 result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp &&
                 result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp[0].GrantOrContributionPdDurYrGrp) {
-                grants = result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp[0].GrantOrContributionPdDurYrGrp;
+                // grants = result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp[0].GrantOrContributionPdDurYrGrp;
                 // console.log(grants);
             }
 
@@ -453,13 +453,13 @@ function importTable(task, callback) {
 
                 var filing = processFiling(result);
 
-                if (filing && filing.people.length > 0) {
+                if (filing && filing.grants.length > 0) {
                     startTransaction(function(t) {
                         transaction = t;
 
-                        queued += filing.people.length;
+                        queued += filing.grants.length;
 
-                        cargo.push(filing.people);
+                        cargo.push(filing.grants);
 
                         cargo.drain = done;
 
