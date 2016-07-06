@@ -351,13 +351,13 @@ function importTable(task, callback) {
             if (result.Return.ReturnData[0].IRS990PF && 
                 result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp &&
                 result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp[0].GrantOrContributionPdDurYrGrp) {
-                // grants = result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp[0].GrantOrContributionPdDurYrGrp;
+                grants = result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp[0].GrantOrContributionPdDurYrGrp;
                 // console.log(grants);
             }
 
             if (result.Return.ReturnData[0].IRS990ScheduleI &&
                 result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable) {
-                grants = result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable;
+                // grants = result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable;
             }
 
             if (result.Return.ReturnData[0].IRS990PF) {
