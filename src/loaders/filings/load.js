@@ -141,7 +141,7 @@ var fieldMap = {
 };
 
 function importFiling(task, callback) {
-    // console.log('inserting rows from ' + task.file);
+    console.log('processing ' + task.file);
 
     var transaction = null;
 
@@ -150,9 +150,16 @@ function importFiling(task, callback) {
         finished = false;
 
     function startTransaction(cb) {
-        models.sequelize.transaction()
-            .then(cb)
-            .catch(error);
+        if (models.sequelize) {
+            models.sequelize.transaction()
+                .then(cb)
+                .catch(error);
+        }
+        else {
+            console.warn('no database connection, no transaction started');
+
+            cb();
+        }
     }
 
     function processRows(task, cb) {
@@ -178,7 +185,6 @@ function importFiling(task, callback) {
                 cb();
             })
             .catch(error);
-
     }
 
 
@@ -253,11 +259,13 @@ function importFiling(task, callback) {
         }
     }
 
-    function truncate(cb) {
-        models.irs990_person.truncate({
-                transaction: transaction
-            })
-            .then(cb);
+    function truncate(model,cb) {
+        if (model) {
+            model.truncate({
+                    transaction: transaction
+                })
+                .then(cb);
+        }
     }
 
     function mapFields(prefix, obj) {
@@ -397,11 +405,6 @@ function importFiling(task, callback) {
                 // grants = result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable;
             }
 
-            if (result.Return.ReturnData[0].IRS990PF) {
-                console.log(task.file);
-                // console.log(grants);
-            }
-
             grants = grants.map(mapFields.bind(this, 'recipient'))
                 .map(function(grant) {
                     grant.filer_ein = filing.ein;
@@ -492,12 +495,19 @@ function importFiling(task, callback) {
                     error(err);
                 }
 
-                var rows = [];
-                processFiling(result);
+                var rows = processFiling(result);
 
                 if (rows && rows.length > 0) {
                     startTransaction(function(t) {
+                        if (!t) {
+                            done();
+
+                            return;
+                        }
+
                         transaction = t;
+
+                        cargo.push(rows);
 
                         queued += rows.length;
 
@@ -521,14 +531,8 @@ function importFiling(task, callback) {
 
 }
 
-var dir = __dirname + '/data';
-
-models.sync(function(err) {
-    if (err) {
-        console.error(err);
-    }
-
-    var dir = __dirname + '/data';
+function importDir(dir) {
+    dir = dir || __dirname + '/../../data';
 
     var q = async.queue(importFiling, 1);
 
@@ -545,5 +549,21 @@ models.sync(function(err) {
     q.drain = function() {
         console.log('done');
     };
+}
 
-});
+var dir = __dirname + '/data';
+
+if (models.sync) {
+    models.sync(function(err) {
+        if (err) {
+            console.error(err);
+        }
+
+        importDir();
+    });
+}
+else {
+    console.warn('DB_DRIVER environment variable not set, no database connection');
+
+    importDir();
+}
