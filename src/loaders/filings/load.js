@@ -22,6 +22,7 @@ var fieldMap = {
     'CashGrantAmt.0': 'cash_amt',
     'Amt.0': 'cash_amt',
     'AmountOfCashGrant.0': 'cash_amt',
+    'AmtOfContribsRecdDelivered.0': 'cash_amt',
     'NoncashContributionType.0': 'contribution_type_noncash',
     'PayrollContributionType.0': 'contribution_type_payroll',
     'PersonContributionType.0': 'contribution_type_person',
@@ -70,12 +71,14 @@ var fieldMap = {
     'RecipientForeignAddress.0.CountryCd.0': 'prefix_country',
     'RecipientEIN.0': 'prefix_ein',
     'EINOfRecipient.0': 'prefix_ein',
+    'EIN.0': 'prefix_ein',
     'PersonNm.0': 'prefix_name',
     'PersonName.0._': 'prefix_name',
     'PersonName.0': 'prefix_name',
     'NamePerson.0': 'prefix_name',
     'PersonNm.0._': 'prefix_name',
     'ContributorNameIndividual.0': 'prefix_name',
+    'NameOf527Organization.0.BusinessNameLine1.0': 'prefix_name_1',
     'RecipientBusinessName.0.BusinessNameLine1.0': 'prefix_name_1',
     'RecipientBusinessName.0.BusinessNameLine1Txt.0': 'prefix_name_1',
     'RecipientNameBusiness.0.BusinessNameLine1.0': 'prefix_name_1',
@@ -83,6 +86,7 @@ var fieldMap = {
     'RecipientBusinessName.0.BusinessNameLine2.0': 'prefix_name_2',
     'RecipientBusinessName.0.BusinessNameLine2Txt.0': 'prefix_name_2',
     'RecipientNameBusiness.0.BusinessNameLine2.0': 'prefix_name_2',
+    'NameOf527Organization.0.BusinessNameLine2.0': 'prefix_name_2',
     'ContributorNumber.0': 'prefix_number',
     'RecipientRelationshipTxt.0': 'prefix_relationship',
     'USAddress.0.State.0': 'prefix_state',
@@ -290,11 +294,33 @@ function importFiling(task, callback) {
     }
 
     function processPolitcalContribs(filing, result) {
+        var orgs = [];
+
         if (result.Return.ReturnData[0].IRS990ScheduleC) {
-            console.log(util.inspect(result.Return.ReturnData[0].IRS990ScheduleC, { depth: null }));
+            var schedule = result.Return.ReturnData[0].IRS990ScheduleC[0];
+
+            if (schedule.Sec527PolOrgs || schedule.Sec527PoliticalOrgs || schedule.Section527PoliticalOrgGrp ||
+                schedule.Section527PoliticalOrg || schedule.Section527PoliticalOrgs) {
+
+                orgs = schedule.Sec527PolOrgs || schedule.Sec527PoliticalOrgs || schedule.Section527PoliticalOrgGrp ||
+                            schedule.Section527PoliticalOrg || schedule.Section527PoliticalOrgs;
+
+                orgs = orgs.map(mapFields.bind(this, 'org'))
+                        .map(function (org) {
+                            org.org_name = null;
+                            if (org.org_name_1) {
+                                org.org_name = org.org_name_1.trim();
+                            }
+                            if (org.org_name_2) {
+                                org.org_name = ' ' + org.org_name_2.trim();
+                            }
+
+                            return org;
+                        });
+            }
         }
 
-        return [];
+        return orgs;
     }
 
     function processContributors(filing, result) {
@@ -410,17 +436,20 @@ function importFiling(task, callback) {
 
         if (result.Return.ReturnData &&
             result.Return.ReturnData[0]) {
+            var returnData = result.Return.ReturnData[0];
 
-            if (result.Return.ReturnData[0].IRS990PF &&
-                result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp &&
-                result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp[0].GrantOrContributionPdDurYrGrp) {
-                grants = result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp[0].GrantOrContributionPdDurYrGrp;
-                // console.log(grants);
+            if (returnData.IRS990PF) {
+                if (returnData.IRS990PF[0].SupplementaryInformationGrp || returnData.IRS990PF[0].SupplementaryInformation) {
+                    var group = returnData.IRS990PF[0].SupplementaryInformation || returnData.IRS990PF[0].SupplementaryInformationGrp;
+
+                    grants = group[0].GrantOrContriPaidDuringYear || group[0].GrantOrContributionPdDurYrGrp || [];
+                    console.log(grants);
+                }
             }
 
-            if (result.Return.ReturnData[0].IRS990ScheduleI &&
-                result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable) {
-                // grants = result.Return.ReturnData[0].IRS990ScheduleI[0].RecipientTable;
+            if (returnData.IRS990ScheduleI &&
+                returnData.IRS990ScheduleI[0].RecipientTable) {
+                // grants = returnData.IRS990ScheduleI[0].RecipientTable;
             }
 
             grants = grants.map(mapFields.bind(this, 'recipient'))
