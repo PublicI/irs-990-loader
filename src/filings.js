@@ -140,7 +140,7 @@ var fieldMap = {
     'GrantOrContributionPurposeTxt.0': 'purpose'
 };
 
-function importTable(task, callback) {
+function importFiling(task, callback) {
     // console.log('inserting rows from ' + task.file);
 
     var transaction = null;
@@ -155,18 +155,20 @@ function importTable(task, callback) {
             .catch(error);
     }
 
-    function insertRows(tasks, cb) {
+    function processRows(task, cb) {
         if (finished) {
             cb();
             return;
         }
 /*
         console.log('processing ' + numeral(processed).format() + ' - ' +
-            numeral(processed + tasks.length).format() + ' of ' +
+            numeral(processed + task.rows.length).format() + ' of ' +
             numeral(queued).format());
 */
 
-        models.irs990_grant
+        rows = task.rows;
+
+        rows[0].model
             .bulkCreate(tasks, {
                 transaction: transaction
             })
@@ -177,6 +179,38 @@ function importTable(task, callback) {
             })
             .catch(error);
 
+    }
+
+
+    function queueRows(rows,cb) {
+        if (finished) {
+            cb();
+            return;
+        }
+
+        var modelGroups = _(rows)
+                    .groupBy(function (row) {
+                        return row.model.name;
+                    })
+                    .toArray()
+                    .map(function (rows) {
+                        return {
+                            rows: rows
+                        };
+                    })
+                    .value();
+
+        var q = async.queue(processRows,1);
+
+        q.push(modelGroups,function (err) {
+            if (err) {
+                q.kill();
+
+                cb(err);
+            }
+        });
+
+        q.drain = cb;
     }
 
     function error(err) {
@@ -391,6 +425,8 @@ function importTable(task, callback) {
     }
 
     function processFiling(result) {
+        var rows = [];
+
         var filing = {};
 
         if (result.Return) {
@@ -410,6 +446,11 @@ function importTable(task, callback) {
 
             filing.ein = header.Filer[0].EIN[0];
             filing.object_id = fileName.replace('_public.xml', '');
+
+            filing.model = models.irs990_filing;
+
+            rows.push(filing);
+
 /*
             var form = null;
 
@@ -427,17 +468,17 @@ function importTable(task, callback) {
                 console.error('error: no form found in ' + task.file);
             }*/
 
-            filing.grants = processGrants(filing, result);
+            // filing.grants = processGrants(filing, result);
             // filing.grants = [];
 
             // filing.people = processPeople(filing, result);
-            filing.people = [];
+            // filing.people = [];
 
             // filing.donors = processContributions(filing, result);
-            filing.donors = [];
+            // filing.donors = [];
         }
 
-        return filing;
+        return rows;
     }
 
     function readXml() {
@@ -451,17 +492,14 @@ function importTable(task, callback) {
                     error(err);
                 }
 
-                var filing = processFiling(result);
+                var rows = [];
+                processFiling(result);
 
-                if (filing && filing.grants.length > 0) {
+                if (rows && rows.length > 0) {
                     startTransaction(function(t) {
                         transaction = t;
 
-                        queued += filing.grants.length;
-
-                        console.log(filing.grants);
-
-                        cargo.push(filing.grants);
+                        queued += rows.length;
 
                         cargo.drain = done;
 
@@ -477,7 +515,7 @@ function importTable(task, callback) {
     }
 
 
-    var cargo = async.cargo(insertRows, 200);
+    var cargo = async.cargo(queueRows, 200);
 
     readXml();
 
@@ -492,7 +530,7 @@ models.sync(function(err) {
 
     var dir = __dirname + '/data';
 
-    var q = async.queue(importTable, 1);
+    var q = async.queue(importFiling, 1);
 
     rread(dir)
         .filter(function(file) {

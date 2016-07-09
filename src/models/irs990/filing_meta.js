@@ -3,8 +3,9 @@ var moment = require('moment');
 module.exports = function(sequelize, DataTypes) {
     var FilingMeta = sequelize.define('irs990_filings_meta', {
         ObjectId: {
-            type: DataTypes.STRING,
-            field: 'object_id'
+            type: DataTypes.TEXT,
+            field: 'object_id',
+            primaryKey: true
         },
         EIN: {
             type: DataTypes.TEXT,
@@ -23,11 +24,11 @@ module.exports = function(sequelize, DataTypes) {
         },
         TaxPeriod: {
             field: 'tax_period',
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
         },
         DLN: {
             field: 'dln',
-            type: DataTypes.STRING
+            type: DataTypes.TEXT
         },
         LastUpdated: {
             field: 'last_updated',
@@ -42,15 +43,15 @@ module.exports = function(sequelize, DataTypes) {
         },
         URL: {
             field: 'url',
-            type: DataTypes.STRING
+            type: DataTypes.TEXT
         },
         FormType: {
             field: 'form_type',
-            type: DataTypes.STRING
+            type: DataTypes.TEXT
         },
         OrganizationName: {
             field: 'organization_name',
-            type: DataTypes.STRING
+            type: DataTypes.TEXT
         },
         IsElectronic: {
             field: 'is_electronic',
