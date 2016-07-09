@@ -4,6 +4,8 @@ var rread = require('fs-readdir-recursive'),
 
 function getModels (options) {
     if (!options.driver) {
+        console.warn('DB_DRIVER environment variable not set, no database connection');
+
         return {};
     }
 

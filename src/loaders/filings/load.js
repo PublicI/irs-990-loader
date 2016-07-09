@@ -563,7 +563,5 @@ if (models.sync) {
     });
 }
 else {
-    console.warn('DB_DRIVER environment variable not set, no database connection');
-
     importDir();
 }
