@@ -1,9 +1,9 @@
 #!/bin/bash
 
-wget -N -i https://www.irs.gov/pub/irs-soi/eo1.csv -P ../../data/eo/
-wget -N -i https://www.irs.gov/pub/irs-soi/eo2.csv -P ../../data/eo/
-wget -N -i https://www.irs.gov/pub/irs-soi/eo3.csv -P ../../data/eo/
-wget -N -i https://www.irs.gov/pub/irs-soi/eo4.csv -P ../../data/eo/
+wget -N -P ../../data/eo/ https://www.irs.gov/pub/irs-soi/eo1.csv
+wget -N -P ../../data/eo/ https://www.irs.gov/pub/irs-soi/eo2.csv
+wget -N -P ../../data/eo/ https://www.irs.gov/pub/irs-soi/eo3.csv
+wget -N -P ../../data/eo/ https://www.irs.gov/pub/irs-soi/eo4.csv
 
 if [ "$DB_DRIVER" = "postgres" ]
 then
