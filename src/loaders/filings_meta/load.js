@@ -126,7 +126,7 @@ models.sync(function (err) {
     }
 
     importTable({
-        file: __dirname + '/data/index.json'
+        file: __dirname + '/../../data/index.json'
     },function () {
 
     });
