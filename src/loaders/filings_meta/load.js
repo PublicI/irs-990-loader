@@ -93,23 +93,6 @@ function importTable(task, callback) {
 
         fs.createReadStream(task.file)
             .pipe(brake(45164*11))
-            /*
-            .pipe(replaceStream(/("|'|True|False)/g, function (match) {
-                if (match == '"') {
-                    i++;
-
-                    return i <= 2 ? '"' : '\\"';
-                }
-                else if (match == '\'') {
-                    return '"';
-                }
-                else if (match == 'True') {
-                    return 'true';
-                }
-                else if (match == 'False') {
-                    return 'false';
-                }
-            }))*/
             .pipe(JSONStream.parse('AllFilings.*'))
             .on('data', function(row) {
                 queued++;
