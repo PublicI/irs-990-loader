@@ -1,1 +1,1 @@
-wget -i -N urls.txt -P ../../data/sample/
+wget -N -i urls.txt -P ../../data/sample/
