@@ -1,0 +1,1 @@
+wget -i -N urls.txt -P ../../data/sample/

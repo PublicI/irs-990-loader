@@ -3,6 +3,14 @@ var rread = require('fs-readdir-recursive'),
     Sequelize = require('sequelize');
 
 function getModels (options) {
+    if (!options.driver) {
+        return {
+            sync: function (cb) {
+                cb(new Error('DB_DRIVER environment variable not set, no database'));
+            }
+        };
+    }
+
     var basename = path.basename(module.filename);
 
     var sequelize = new Sequelize(options.name, options.user, options.pass,{

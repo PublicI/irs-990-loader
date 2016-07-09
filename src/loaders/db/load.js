@@ -1,4 +1,4 @@
-var models = require('./models');
+var models = require('../../models');
 
 models.sync(function (err) {
 	if (err) {

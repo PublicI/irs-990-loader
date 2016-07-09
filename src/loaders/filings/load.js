@@ -2,7 +2,7 @@ var _ = require('lodash'),
     fs = require('fs'),
     async = require('async'),
     numeral = require('numeral'),
-    models = require('./models'),
+    models = require('../../models'),
     moment = require('moment'),
     parseString = require('xml2js').parseString,
     util = require('util'),
@@ -289,11 +289,12 @@ function importFiling(task, callback) {
 
             if (schedule.ContributorInfo) {
                 contributions = schedule.ContributorInfo
-                                    .map(mapFields.bind(this, 'donor'));
-                                    /*
-                                    .map(function (donor) {
-                                        console.log();
-                                    });*/
+                                    .map(mapFields.bind(this, 'contributor'))
+                                    .map(function (contribution) {
+                                        // map.model = 
+
+                                        return contribution;
+                                    });
                 console.log(contributions);
             }
         }
@@ -366,6 +367,8 @@ function importFiling(task, callback) {
                         person.business_name = ' ' + person.business_name_2.trim();
                     }
 
+                    person.model = models.irs990_person;
+
                     return person;
                 });
 
@@ -416,6 +419,8 @@ function importFiling(task, callback) {
                             grant.recipient_name = grant.recipient_name_2.trim();
                         }
                     }
+
+                    grant.model = models.irs990_grant;
 
                     return grant;
                 });
@@ -468,14 +473,9 @@ function importFiling(task, callback) {
                 console.error('error: no form found in ' + task.file);
             }*/
 
-            // filing.grants = processGrants(filing, result);
-            // filing.grants = [];
-
-            // filing.people = processPeople(filing, result);
-            // filing.people = [];
-
-            // filing.donors = processContributions(filing, result);
-            // filing.donors = [];
+            rows = rows.concat(processGrants(filing, result));
+            rows = rows.concat(processPeople(filing, result));
+            rows = rows.concat(processContributions(filing, result));
         }
 
         return rows;
@@ -525,7 +525,7 @@ var dir = __dirname + '/data';
 
 models.sync(function(err) {
     if (err) {
-        throw err;
+        console.error(err);
     }
 
     var dir = __dirname + '/data';
