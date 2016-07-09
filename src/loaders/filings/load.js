@@ -11,31 +11,43 @@ var _ = require('lodash'),
     rread = require('fs-readdir-recursive');
 
 var fieldMap = {
-    'RecipientBusinessName.0.BusinessNameLine1.0': 'prefix_name_1',
-    'RecipientBusinessName.0.BusinessNameLine1Txt.0': 'prefix_name_1',
-    'RecipientNameBusiness.0.BusinessNameLine1.0': 'prefix_name_1',
-    'RecipientBusinessName.0.BusinessNameLine2.0': 'prefix_name_2',
-    'RecipientBusinessName.0.BusinessNameLine2Txt.0': 'prefix_name_2',
-    'RecipientNameBusiness.0.BusinessNameLine2.0': 'prefix_name_2',
-    'RecipientPersonNm.0': 'prefix_name_1',
-    'USAddress.0.AddressLine1.0': 'prefix_street_1',
-    'AddressUS.0.AddressLine1.0': 'prefix_street_1',
-    'USAddress.0.AddressLine1Txt.0': 'prefix_street_1',
-    'ForeignAddress.0.AddressLine1Txt.0': 'prefix_street_1',
-    'ForeignAddress.0.AddressLine1.0': 'prefix_street_1',
-    'AddressForeign.0.AddressLine1.0': 'prefix_street_1',
-    'USAddress.0.AddressLine2.0': 'prefix_street_2',
-    'AddressUS.0.AddressLine2.0': 'prefix_street_2',
-    'USAddress.0.AddressLine2Txt.0': 'prefix_street_2',
-    'ForeignAddress.0.AddressLine2Txt.0': 'prefix_street_2',
-    'ForeignAddress.0.AddressLine2.0': 'prefix_street_2',
-    'AddressForeign.0.AddressLine2.0': 'prefix_street_2',
-    'RecipientUSAddress.0.AddressLine1.0': 'prefix_street_1',
-    'RecipientForeignAddress.0.AddressLine1.0': 'prefix_street_1',
-    'RecipientForeignAddress.0.AddressLine2.0': 'prefix_street_2',
-    'RecipientUSAddress.0.AddressLine2.0': 'prefix_street_2',
-    'RecipientUSAddress.0.AddressLine1Txt.0': 'prefix_street_1',
-    'RecipientUSAddress.0.AddressLine2Txt.0': 'prefix_street_2',
+    'ContriToEmplBenefitPlansEtc.0': 'benefit_contribution',
+    'BusinessName.0.BusinessNameLine1.0': 'business_name_1',
+    'NameBusiness.0.BusinessNameLine1.0': 'business_name_1',
+    'ContributorNameBusiness.0.BusinessNameLine1.0': 'business_name_1',
+    'BusinessName.0.BusinessNameLine2.0': 'business_name_2',
+    'NameBusiness.0.BusinessNameLine2.0': 'business_name_2',
+    'ContributorNameBusiness.0.BusinessNameLine2.0': 'business_name_2',
+    'CashGrantAmt.0': 'cash_amt',
+    'Amt.0': 'cash_amt',
+    'AmountOfCashGrant.0': 'cash_amt',
+    'NoncashContributionType.0': 'contribution_type_noncash',
+    'PayrollContributionType.0': 'contribution_type_payroll',
+    'PersonContributionType.0': 'contribution_type_person',
+    'ExpenseAccountOtherAllowances.0': 'expenses_or_allowances',
+    'Former.0': 'former',
+    'FormerOfcrDirectorTrusteeInd.0': 'former',
+    'HighestCompensatedEmployeeInd.0': 'highest_compensated',
+    'HighestCompensatedEmployee.0': 'highest_compensated',
+    'AverageHoursPerWeekRt.0': 'hours',
+    'AverageHoursPerWeek.0': 'hours',
+    'AvgHoursPerWkDevotedToPosition.0': 'hours',
+    'InstitutionalTrustee.0': 'institutional_trustee',
+    'InstitutionalTrusteeInd.0': 'institutional_trustee',
+    'KeyEmployee.0': 'key_employee',
+    'KeyEmployeeInd.0': 'key_employee',
+    'NonCashAssistanceAmt.0': 'non_cash_amt',
+    'AmountOfNonCashAssistance.0': 'non_cash_amt',
+    'NonCashAssistanceDesc.0': 'non_cash_desc',
+    'DescriptionOfNonCashAssistance.0': 'non_cash_desc',
+    'OfficerInd.0': 'officer',
+    'Officer.0': 'officer',
+    'ReportableCompFromOrgAmt.0': 'org_compensation',
+    'ReportableCompFromOrganization.0': 'org_compensation',
+    'Compensation.0': 'org_compensation',
+    'OtherCompensationAmt.0': 'other_compensation',
+    'OtherCompensation.0': 'other_compensation',
+    'AggregateContributions.0': 'prefix_aggregate_amt',
     'USAddress.0.City.0': 'prefix_city',
     'USAddress.0.CityNm.0': 'prefix_city',
     'ForeignAddress.0.CityNm.0': 'prefix_city',
@@ -46,6 +58,28 @@ var fieldMap = {
     'RecipientForeignAddress.0.City.0': 'prefix_city',
     'RecipientUSAddress.0.CityNm.0': 'prefix_city',
     'RecipientForeignAddress.0.CityNm.0': 'prefix_city',
+    'ContributorAddressUS.0.City.0': 'prefix_city',
+    'ForeignAddress.0.CountryCd.0': 'prefix_country',
+    'ForeignAddress.0.Country.0': 'prefix_country',
+    'AddressForeign.0.Country.0': 'prefix_country',
+    'RecipientForeignAddress.0.Country.0': 'prefix_country',
+    'RecipientForeignAddress.0.CountryCd.0': 'prefix_country',
+    'RecipientEIN.0': 'prefix_ein',
+    'EINOfRecipient.0': 'prefix_ein',
+    'PersonNm.0': 'prefix_name',
+    'PersonName.0._': 'prefix_name',
+    'PersonName.0': 'prefix_name',
+    'NamePerson.0': 'prefix_name',
+    'ContributorNameIndividual.0': 'prefix_name',
+    'RecipientBusinessName.0.BusinessNameLine1.0': 'prefix_name_1',
+    'RecipientBusinessName.0.BusinessNameLine1Txt.0': 'prefix_name_1',
+    'RecipientNameBusiness.0.BusinessNameLine1.0': 'prefix_name_1',
+    'RecipientPersonNm.0': 'prefix_name_1',
+    'RecipientBusinessName.0.BusinessNameLine2.0': 'prefix_name_2',
+    'RecipientBusinessName.0.BusinessNameLine2Txt.0': 'prefix_name_2',
+    'RecipientNameBusiness.0.BusinessNameLine2.0': 'prefix_name_2',
+    'ContributorNumber.0': 'prefix_number',
+    'RecipientRelationshipTxt.0': 'prefix_relationship',
     'USAddress.0.State.0': 'prefix_state',
     'AddressUS.0.State.0': 'prefix_state',
     'RecipientUSAddress.0.State.0': 'prefix_state',
@@ -55,11 +89,31 @@ var fieldMap = {
     'RecipientForeignAddress.0.ProvinceOrState.0': 'prefix_state',
     'ForeignAddress.0.ProvinceOrState.0': 'prefix_state',
     'AddressForeign.0.ProvinceOrState.0': 'prefix_state',
-    'ForeignAddress.0.CountryCd.0': 'prefix_country',
-    'ForeignAddress.0.Country.0': 'prefix_country',
-    'AddressForeign.0.Country.0': 'prefix_country',
-    'RecipientForeignAddress.0.Country.0': 'prefix_country',
-    'RecipientForeignAddress.0.CountryCd.0': 'prefix_country',
+    'ContributorAddressUS.0.State.0': 'prefix_state',
+    'USAddress.0.AddressLine1.0': 'prefix_street_1',
+    'AddressUS.0.AddressLine1.0': 'prefix_street_1',
+    'USAddress.0.AddressLine1Txt.0': 'prefix_street_1',
+    'ForeignAddress.0.AddressLine1Txt.0': 'prefix_street_1',
+    'ForeignAddress.0.AddressLine1.0': 'prefix_street_1',
+    'AddressForeign.0.AddressLine1.0': 'prefix_street_1',
+    'RecipientUSAddress.0.AddressLine1.0': 'prefix_street_1',
+    'RecipientForeignAddress.0.AddressLine1.0': 'prefix_street_1',
+    'RecipientUSAddress.0.AddressLine1Txt.0': 'prefix_street_1',
+    'ContributorAddressUS.0.AddressLine1.0': 'prefix_street_1',
+    'USAddress.0.AddressLine2.0': 'prefix_street_2',
+    'AddressUS.0.AddressLine2.0': 'prefix_street_2',
+    'USAddress.0.AddressLine2Txt.0': 'prefix_street_2',
+    'ForeignAddress.0.AddressLine2Txt.0': 'prefix_street_2',
+    'ForeignAddress.0.AddressLine2.0': 'prefix_street_2',
+    'AddressForeign.0.AddressLine2.0': 'prefix_street_2',
+    'RecipientForeignAddress.0.AddressLine2.0': 'prefix_street_2',
+    'RecipientUSAddress.0.AddressLine2.0': 'prefix_street_2',
+    'RecipientUSAddress.0.AddressLine2Txt.0': 'prefix_street_2',
+    'IRCSectionDesc.0': 'prefix_tax_section',
+    'IRCSection.0': 'prefix_tax_section',
+    'RecipientFoundationStatusTxt.0': 'prefix_tax_section',
+    'TitleTxt.0': 'prefix_title',
+    'Title.0': 'prefix_title',
     'USAddress.0.ZIPCode.0': 'prefix_zip',
     'USAddress.0.ZIPCd.0': 'prefix_zip',
     'AddressUS.0.ZIPCode.0': 'prefix_zip',
@@ -68,76 +122,22 @@ var fieldMap = {
     'ForeignAddress.0.ForeignPostalCd.0': 'prefix_zip',
     'AddressForeign.0.PostalCode.0': 'prefix_zip',
     'RecipientUSAddress.0.ZIPCd.0': 'prefix_zip',
-    'RecipientEIN.0': 'prefix_ein',
-    'EINOfRecipient.0': 'prefix_ein',
-    'IRCSectionDesc.0': 'prefix_tax_section',
-    'IRCSection.0': 'prefix_tax_section',
-    'CashGrantAmt.0': 'cash_amt',
-    'Amt.0': 'cash_amt',
-    'AmountOfCashGrant.0': 'cash_amt',
-    'NonCashAssistanceAmt.0': 'non_cash_amt',
-    'AmountOfNonCashAssistance.0': 'non_cash_amt',
-    'NonCashAssistanceDesc.0': 'non_cash_desc',
-    'DescriptionOfNonCashAssistance.0': 'non_cash_desc',
-    'ValuationMethodUsedDesc.0': 'valuation_method',
-    'MethodOfValuation.0': 'valuation_method',
+    'ContributorAddressUS.0.ZIPCode.0': 'prefix_zip',
+    'RecipientForeignAddress.0.PostalCode.0': 'prefix_zip',
     'PurposeOfGrantTxt.0': 'purpose',
     'PurposeOfGrant.0': 'purpose',
-    'PersonNm.0': 'prefix_name',
-    'PersonName.0._': 'prefix_name',
-    'PersonName.0': 'prefix_name',
-    'NamePerson.0': 'prefix_name',
-    'BusinessName.0.BusinessNameLine1.0': 'business_name_1',
-    'BusinessName.0.BusinessNameLine2.0': 'business_name_2',
-    'NameBusiness.0.BusinessNameLine1.0': 'business_name_1',
-    'NameBusiness.0.BusinessNameLine2.0': 'business_name_2',
-    'TitleTxt.0': 'prefix_title',
-    'Title.0': 'prefix_title',
-    'AverageHoursPerWeekRt.0': 'hours',
-    'AverageHoursPerWeek.0': 'hours',
-    'AvgHoursPerWkDevotedToPosition.0': 'hours',
-    'IndividualTrusteeOrDirectorInd.0': 'trustee_or_director',
-    'IndividualTrusteeOrDirector.0': 'trustee_or_director',
-    'OfficerInd.0': 'officer',
-    'Officer.0': 'officer',
-    'HighestCompensatedEmployeeInd.0': 'highest_compensated',
-    'HighestCompensatedEmployee.0': 'highest_compensated',
-    'KeyEmployee.0': 'key_employee',
-    'KeyEmployeeInd.0': 'key_employee',
-    'ReportableCompFromOrgAmt.0': 'org_compensation',
-    'ReportableCompFromOrganization.0': 'org_compensation',
-    'Compensation.0': 'org_compensation',
-    'ReportableCompFromRltdOrgAmt.0': 'related_org_compensation',
-    'ReportableCompFromRelatedOrgs.0': 'related_org_compensation',
-    'OtherCompensationAmt.0': 'other_compensation',
-    'OtherCompensation.0': 'other_compensation',
-    'ExpenseAccountOtherAllowances.0': 'expenses_or_allowances',
-    'ContriToEmplBenefitPlansEtc.0': 'benefit_contribution',
-    'InstitutionalTrustee.0': 'institutional_trustee',
-    'InstitutionalTrusteeInd.0': 'institutional_trustee',
+    'GrantOrContributionPurposeTxt.0': 'purpose',
     'PersonName.0.$.referenceDocumentId': 'reference_document_id',
     'BusinessName.0.$.referenceDocumentId': 'reference_document_id',
     'PersonName.0.$.referenceDocumentName': 'reference_document_id',
-    'Former.0': 'former',
-    'FormerOfcrDirectorTrusteeInd.0': 'former',
+    'ReportableCompFromRltdOrgAmt.0': 'related_org_compensation',
+    'ReportableCompFromRelatedOrgs.0': 'related_org_compensation',
     'AverageHoursPerWeekRltdOrgRt.0': 'related_org_hours',
     'AverageHoursPerWeekRelated.0': 'related_org_hours',
-    'ContributorNameIndividual.0': 'prefix_name',
-    'ContributorNumber.0': 'prefix_number',
-    'ContributorAddressUS.0.AddressLine1.0': 'prefix_street_1',
-    'ContributorAddressUS.0.City.0': 'prefix_city',
-    'ContributorAddressUS.0.State.0': 'prefix_state',
-    'ContributorAddressUS.0.ZIPCode.0': 'prefix_zip',
-    'RecipientForeignAddress.0.PostalCode.0': 'prefix_zip',
-    'AggregateContributions.0': 'prefix_aggregate_amt',
-    'PersonContributionType.0': 'contribution_type_person',
-    'NoncashContributionType.0': 'contribution_type_noncash',
-    'PayrollContributionType.0': 'contribution_type_payroll',
-    'ContributorNameBusiness.0.BusinessNameLine1.0': 'business_name_1',
-    'ContributorNameBusiness.0.BusinessNameLine2.0': 'business_name_2',
-    'RecipientRelationshipTxt.0': 'prefix_relationship',
-    'RecipientFoundationStatusTxt.0': 'prefix_tax_section',
-    'GrantOrContributionPurposeTxt.0': 'purpose'
+    'IndividualTrusteeOrDirectorInd.0': 'trustee_or_director',
+    'IndividualTrusteeOrDirector.0': 'trustee_or_director',
+    'ValuationMethodUsedDesc.0': 'valuation_method',
+    'MethodOfValuation.0': 'valuation_method'
 };
 
 function importFiling(task, callback) {
@@ -154,8 +154,7 @@ function importFiling(task, callback) {
             models.sequelize.transaction()
                 .then(cb)
                 .catch(error);
-        }
-        else {
+        } else {
             console.warn('no database connection, no transaction started');
 
             cb();
@@ -167,11 +166,11 @@ function importFiling(task, callback) {
             cb();
             return;
         }
-/*
-        console.log('processing ' + numeral(processed).format() + ' - ' +
-            numeral(processed + task.rows.length).format() + ' of ' +
-            numeral(queued).format());
-*/
+        /*
+                console.log('processing ' + numeral(processed).format() + ' - ' +
+                    numeral(processed + task.rows.length).format() + ' of ' +
+                    numeral(queued).format());
+        */
 
         rows = task.rows;
 
@@ -188,27 +187,27 @@ function importFiling(task, callback) {
     }
 
 
-    function queueRows(rows,cb) {
+    function queueRows(rows, cb) {
         if (finished) {
             cb();
             return;
         }
 
         var modelGroups = _(rows)
-                    .groupBy(function (row) {
-                        return row.model.name;
-                    })
-                    .toArray()
-                    .map(function (rows) {
-                        return {
-                            rows: rows
-                        };
-                    })
-                    .value();
+            .groupBy(function(row) {
+                return row.model.name;
+            })
+            .toArray()
+            .map(function(rows) {
+                return {
+                    rows: rows
+                };
+            })
+            .value();
 
-        var q = async.queue(processRows,1);
+        var q = async.queue(processRows, 1);
 
-        q.push(modelGroups,function (err) {
+        q.push(modelGroups, function(err) {
             if (err) {
                 q.kill();
 
@@ -259,7 +258,7 @@ function importFiling(task, callback) {
         }
     }
 
-    function truncate(model,cb) {
+    function truncate(model, cb) {
         if (model) {
             model.truncate({
                     transaction: transaction
@@ -297,12 +296,10 @@ function importFiling(task, callback) {
 
             if (schedule.ContributorInfo) {
                 contributions = schedule.ContributorInfo
-                                    .map(mapFields.bind(this, 'contributor'))
-                                    .map(function (contribution) {
-                                        // map.model = 
-
-                                        return contribution;
-                                    });
+                    .map(mapFields.bind(this, 'contributor'))
+                    .map(function(contribution) {
+                        return contribution;
+                    });
                 console.log(contributions);
             }
         }
@@ -393,7 +390,7 @@ function importFiling(task, callback) {
         if (result.Return.ReturnData &&
             result.Return.ReturnData[0]) {
 
-            if (result.Return.ReturnData[0].IRS990PF && 
+            if (result.Return.ReturnData[0].IRS990PF &&
                 result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp &&
                 result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp[0].GrantOrContributionPdDurYrGrp) {
                 grants = result.Return.ReturnData[0].IRS990PF[0].SupplementaryInformationGrp[0].GrantOrContributionPdDurYrGrp;
@@ -459,22 +456,22 @@ function importFiling(task, callback) {
 
             rows.push(filing);
 
-/*
-            var form = null;
+            /*
+                        var form = null;
 
-            if (result.Return.ReturnData[0].IRS990) {
-                form = result.Return.ReturnData[0].IRS990[0];
-            }
-            if (result.Return.ReturnData[0].IRS990EZ) {
-                form = result.Return.ReturnData[0].IRS990EZ[0];
-            }
-            if (result.Return.ReturnData[0].IRS990PF) {
-                form = result.Return.ReturnData[0].IRS990PF[0];
-            }
+                        if (result.Return.ReturnData[0].IRS990) {
+                            form = result.Return.ReturnData[0].IRS990[0];
+                        }
+                        if (result.Return.ReturnData[0].IRS990EZ) {
+                            form = result.Return.ReturnData[0].IRS990EZ[0];
+                        }
+                        if (result.Return.ReturnData[0].IRS990PF) {
+                            form = result.Return.ReturnData[0].IRS990PF[0];
+                        }
 
-            if (!form) {
-                console.error('error: no form found in ' + task.file);
-            }*/
+                        if (!form) {
+                            console.error('error: no form found in ' + task.file);
+                        }*/
 
             rows = rows.concat(processGrants(filing, result));
             rows = rows.concat(processPeople(filing, result));
@@ -561,7 +558,6 @@ if (models.sync) {
 
         importDir();
     });
-}
-else {
+} else {
     importDir();
 }
