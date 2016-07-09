@@ -12,6 +12,7 @@ var _ = require('lodash'),
 
 var fieldMap = {
     'ContriToEmplBenefitPlansEtc.0': 'benefit_contribution',
+    'EmployeeBenefitProgramAmt.0': 'benefit_contribution',
     'BusinessName.0.BusinessNameLine1.0': 'business_name_1',
     'NameBusiness.0.BusinessNameLine1.0': 'business_name_1',
     'ContributorNameBusiness.0.BusinessNameLine1.0': 'business_name_1',
@@ -25,12 +26,14 @@ var fieldMap = {
     'PayrollContributionType.0': 'contribution_type_payroll',
     'PersonContributionType.0': 'contribution_type_person',
     'ExpenseAccountOtherAllowances.0': 'expenses_or_allowances',
+    'ExpenseAccountOtherAllwncAmt.0': 'expenses_or_allowances',
     'Former.0': 'former',
     'FormerOfcrDirectorTrusteeInd.0': 'former',
     'HighestCompensatedEmployeeInd.0': 'highest_compensated',
     'HighestCompensatedEmployee.0': 'highest_compensated',
     'AverageHoursPerWeekRt.0': 'hours',
     'AverageHoursPerWeek.0': 'hours',
+    'AverageHrsPerWkDevotedToPosRt.0': 'hours',
     'AvgHoursPerWkDevotedToPosition.0': 'hours',
     'InstitutionalTrustee.0': 'institutional_trustee',
     'InstitutionalTrusteeInd.0': 'institutional_trustee',
@@ -45,6 +48,7 @@ var fieldMap = {
     'ReportableCompFromOrgAmt.0': 'org_compensation',
     'ReportableCompFromOrganization.0': 'org_compensation',
     'Compensation.0': 'org_compensation',
+    'CompensationAmt.0': 'org_compensation',
     'OtherCompensationAmt.0': 'other_compensation',
     'OtherCompensation.0': 'other_compensation',
     'AggregateContributions.0': 'prefix_aggregate_amt',
@@ -70,6 +74,7 @@ var fieldMap = {
     'PersonName.0._': 'prefix_name',
     'PersonName.0': 'prefix_name',
     'NamePerson.0': 'prefix_name',
+    'PersonNm.0._': 'prefix_name',
     'ContributorNameIndividual.0': 'prefix_name',
     'RecipientBusinessName.0.BusinessNameLine1.0': 'prefix_name_1',
     'RecipientBusinessName.0.BusinessNameLine1Txt.0': 'prefix_name_1',
@@ -109,6 +114,7 @@ var fieldMap = {
     'RecipientForeignAddress.0.AddressLine2.0': 'prefix_street_2',
     'RecipientUSAddress.0.AddressLine2.0': 'prefix_street_2',
     'RecipientUSAddress.0.AddressLine2Txt.0': 'prefix_street_2',
+    'ContributorAddressUS.0.AddressLine2.0': 'prefix_street_2',
     'IRCSectionDesc.0': 'prefix_tax_section',
     'IRCSection.0': 'prefix_tax_section',
     'RecipientFoundationStatusTxt.0': 'prefix_tax_section',
@@ -130,6 +136,7 @@ var fieldMap = {
     'PersonName.0.$.referenceDocumentId': 'reference_document_id',
     'BusinessName.0.$.referenceDocumentId': 'reference_document_id',
     'PersonName.0.$.referenceDocumentName': 'reference_document_id',
+    'PersonNm.0.$.referenceDocumentId': 'reference_document_id',
     'ReportableCompFromRltdOrgAmt.0': 'related_org_compensation',
     'ReportableCompFromRelatedOrgs.0': 'related_org_compensation',
     'AverageHoursPerWeekRltdOrgRt.0': 'related_org_hours',
@@ -141,7 +148,7 @@ var fieldMap = {
 };
 
 function importFiling(task, callback) {
-    console.log('processing ' + task.file);
+    // console.log('processing ' + task.file);
 
     var transaction = null;
 
@@ -155,7 +162,7 @@ function importFiling(task, callback) {
                 .then(cb)
                 .catch(error);
         } else {
-            console.warn('no database connection, no transaction started');
+            // console.warn('no database connection, no transaction started');
 
             cb();
         }
@@ -283,28 +290,42 @@ function importFiling(task, callback) {
     }
 
     function processPolitcalContribs(filing, result) {
-        if (result.ReturnData[0].IRS990ScheduleC) {
-            console.log(util.inspect(result.ReturnData[0].IRS990ScheduleC, { depth: null }));
+        if (result.Return.ReturnData[0].IRS990ScheduleC) {
+            console.log(util.inspect(result.Return.ReturnData[0].IRS990ScheduleC, { depth: null }));
         }
+
+        return [];
     }
 
-    function processContributions(filing, result) {
-        var contributions = [];
+    function processContributors(filing, result) {
+        var contributors = [];
 
         if (result.Return.ReturnData[0].IRS990ScheduleB) {
             var schedule = result.Return.ReturnData[0].IRS990ScheduleB[0];
 
             if (schedule.ContributorInfo) {
-                contributions = schedule.ContributorInfo
+                contributors = schedule.ContributorInfo
                     .map(mapFields.bind(this, 'contributor'))
-                    .map(function(contribution) {
-                        return contribution;
+                    .filter(function (contributor) {
+                        var include = false;
+
+                        Object.keys(contributor).forEach(function(key) {
+                            if (contributor[key] !== 'RESTRICTED') {
+                                include = true;
+                            }
+                        });
+
+                        return include;
+                    })
+                    .map(function(contributor) {
+                        contributor.model = models.irs990_contributor;
+
+                        return contributor;
                     });
-                console.log(contributions);
             }
         }
 
-        return contributions;
+        return contributors;
     }
 
     function processPeople(filing, result) {
@@ -475,7 +496,8 @@ function importFiling(task, callback) {
 
             rows = rows.concat(processGrants(filing, result));
             rows = rows.concat(processPeople(filing, result));
-            rows = rows.concat(processContributions(filing, result));
+            rows = rows.concat(processContributors(filing, result));
+            rows = rows.concat(processPolitcalContribs(filing,result));
         }
 
         return rows;
