@@ -22,6 +22,8 @@ module.exports = function(sequelize, DataTypes) {
             fields: ['filer_ein']
         },{
             fields: ['recipient_ein']
+        },{
+            fields: ['object_id']
         }]
     });
 

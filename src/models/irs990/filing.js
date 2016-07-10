@@ -4,15 +4,11 @@ module.exports = function(sequelize, DataTypes) {
             primaryKey: true,
             type: DataTypes.TEXT,
         },
-        ein: {
-            type: DataTypes.TEXT,
-        },
-        tax_period: {
-            type: DataTypes.TEXT,
-        }
+        filer_ein: DataTypes.TEXT,
+        tax_period: DataTypes.TEXT
     },{
         indexes: [{
-            fields: ['ein']
+            fields: ['filer_ein']
         }]
     });
 
