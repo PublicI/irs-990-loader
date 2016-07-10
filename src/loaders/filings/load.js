@@ -22,6 +22,7 @@ var fieldMap = {
     'CashGrantAmt.0': 'cash_amt',
     'Amt.0': 'cash_amt',
     'AmountOfCashGrant.0': 'cash_amt',
+    'Amount.0': 'cash_amt',
     'AmtOfContribsRecdDelivered.0': 'cash_amt',
     'NoncashContributionType.0': 'contribution_type_noncash',
     'PayrollContributionType.0': 'contribution_type_payroll',
@@ -78,6 +79,7 @@ var fieldMap = {
     'NamePerson.0': 'prefix_name',
     'PersonNm.0._': 'prefix_name',
     'ContributorNameIndividual.0': 'prefix_name',
+    'RecipientPersonName.0': 'prefix_name_1',
     'NameOf527Organization.0.BusinessNameLine1.0': 'prefix_name_1',
     'RecipientBusinessName.0.BusinessNameLine1.0': 'prefix_name_1',
     'RecipientBusinessName.0.BusinessNameLine1Txt.0': 'prefix_name_1',
@@ -89,6 +91,7 @@ var fieldMap = {
     'NameOf527Organization.0.BusinessNameLine2.0': 'prefix_name_2',
     'ContributorNumber.0': 'prefix_number',
     'RecipientRelationshipTxt.0': 'prefix_relationship',
+    'RecipientRelationship.0': 'prefix_relationship',
     'USAddress.0.State.0': 'prefix_state',
     'AddressUS.0.State.0': 'prefix_state',
     'RecipientUSAddress.0.State.0': 'prefix_state',
@@ -122,6 +125,7 @@ var fieldMap = {
     'IRCSectionDesc.0': 'prefix_tax_section',
     'IRCSection.0': 'prefix_tax_section',
     'RecipientFoundationStatusTxt.0': 'prefix_tax_section',
+    'RecipientFoundationStatus.0': 'prefix_tax_section',
     'TitleTxt.0': 'prefix_title',
     'Title.0': 'prefix_title',
     'USAddress.0.ZIPCode.0': 'prefix_zip',
@@ -136,6 +140,7 @@ var fieldMap = {
     'RecipientForeignAddress.0.PostalCode.0': 'prefix_zip',
     'PurposeOfGrantTxt.0': 'purpose',
     'PurposeOfGrant.0': 'purpose',
+    'PurposeOfGrantOrContribution.0': 'purpose',
     'GrantOrContributionPurposeTxt.0': 'purpose',
     'PersonName.0.$.referenceDocumentId': 'reference_document_id',
     'BusinessName.0.$.referenceDocumentId': 'reference_document_id',
@@ -278,6 +283,21 @@ function importFiling(task, callback) {
         }
     }
 
+    function checkForFiling(id,cb) {
+        models.irs990_filing.findById(id)
+            .then(function (result) {
+                if (result) {
+                    //console.log('already inserted ' + filing_id);
+
+                    callback();
+                }
+                else {
+                    cb();
+                }
+            })
+            .catch(error);
+    }
+
     function mapFields(prefix, obj) {
         obj = flat(obj);
         var row = {};
@@ -314,6 +334,8 @@ function importFiling(task, callback) {
                             if (org.org_name_2) {
                                 org.org_name = ' ' + org.org_name_2.trim();
                             }
+
+                            org.model = models.irs990_political_contrib;
 
                             return org;
                         });
@@ -443,7 +465,6 @@ function importFiling(task, callback) {
                     var group = returnData.IRS990PF[0].SupplementaryInformation || returnData.IRS990PF[0].SupplementaryInformationGrp;
 
                     grants = group[0].GrantOrContriPaidDuringYear || group[0].GrantOrContributionPdDurYrGrp || [];
-                    console.log(grants);
                 }
             }
 
@@ -572,10 +593,12 @@ function importFiling(task, callback) {
         });
     }
 
-
     var cargo = async.cargo(queueRows, 200);
 
-    readXml();
+    // assume the object ID is just the numeric portion of the file name
+    var object_id = path.basename(task.file,'.xml').replace(/[^0-9]+/g,'');
+
+    checkForFiling(object_id,readXml);
 
 }
 
