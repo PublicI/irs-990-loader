@@ -191,11 +191,11 @@ function importFiling(task, callback) {
         rows = task.rows;
 
         rows[0].model
-            .bulkCreate(tasks, {
+            .bulkCreate(rows, {
                 transaction: transaction
             })
             .then(function(instances) {
-                processed += tasks.length;
+                processed += rows.length;
 
                 cb();
             })
