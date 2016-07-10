@@ -425,10 +425,6 @@ function importFiling(task, callback) {
             people = people
                 .map(mapFields.bind(this, 'person'))
                 .map(function(person) {
-                    person.filer_ein = filing.ein;
-                    person.tax_period = filing.tax_period;
-                    person.object_id = filing.object_id;
-
                     if (person.person_street_1) {
                         person.person_street = person.person_street_1;
                     }
@@ -475,10 +471,6 @@ function importFiling(task, callback) {
 
             grants = grants.map(mapFields.bind(this, 'recipient'))
                 .map(function(grant) {
-                    grant.filer_ein = filing.ein;
-                    grant.tax_period = filing.tax_period;
-                    grant.object_id = filing.object_id;
-
                     grant.recipient_name = null;
                     if (grant.recipient_name_1) {
                         grant.recipient_name = grant.recipient_name_1.trim();
@@ -520,7 +512,7 @@ function importFiling(task, callback) {
                 filing.tax_period = endDate.replace('-', '').substr(0, 6);
             }
 
-            filing.ein = header.Filer[0].EIN[0];
+            filing.filer_ein = header.Filer[0].EIN[0];
             filing.object_id = fileName.replace('_public.xml', '');
 
             filing.model = models.irs990_filing;
@@ -548,6 +540,15 @@ function importFiling(task, callback) {
             rows = rows.concat(processPeople(filing, result));
             rows = rows.concat(processContributors(filing, result));
             rows = rows.concat(processPolitcalContribs(filing,result));
+
+            rows = rows.map(function (row) {
+                row.filer_ein = filing.filer_ein;
+                row.object_id = filing.object_id;
+                row.tax_period = filing.tax_period;
+
+                return row;
+            });
+
         }
 
         return rows;
