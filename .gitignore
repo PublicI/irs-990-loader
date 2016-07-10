@@ -2,4 +2,6 @@ node_modules
 src/data/**/*.xml
 src/data/**/*.json
 src/data/**/*.csv
+src/data/**/*.dat
+src/data/**/*.zip
 doc/**

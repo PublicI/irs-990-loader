@@ -1,0 +1,12 @@
+\copy irs990_filings_stats FROM '../../data/stats/15eofinextract990.dat.dat' DELIMITER ' ' HEADER;
+\copy irs990pf_filings_stats FROM '../../data/stats/15eofinextract990pf.dat' DELIMITER ' ' HEADER;
+\copy irs990ez_filings_stats FROM '../../data/stats/15eofinextractEZ.dat' DELIMITER ' ' HEADER;
+\copy irs990_filings_stats FROM '../../data/stats/py12_990.dat' DELIMITER ' ' HEADER;
+\copy irs990ez_filings_stats FROM '../../data/stats/py12_990ez.dat' DELIMITER ' ' HEADER;
+\copy irs990pf_filings_stats FROM '../../data/stats/py12_990pf.dat' DELIMITER ' ' HEADER;
+\copy irs990_filings_stats FROM '../../data/stats/py13_990.dat' DELIMITER ' ' HEADER;
+\copy irs990pf_filings_stats FROM '../../data/stats/py13_990pf.dat' DELIMITER ' ' HEADER;
+\copy irs990ez_filings_stats FROM '../../data/stats/py13_EZ.dat' DELIMITER ' ' HEADER;
+\copy irs990_filings_stats FROM '../../data/stats/py14_990.dat' DELIMITER ' ' HEADER;
+\copy irs990pf_filings_stats FROM '../../data/stats/py14_990pf.dat' DELIMITER ' ' HEADER;
+\copy irs990ez_filings_stats FROM '../../data/stats/py14_EZ.dat' DELIMITER ' ' HEADER;
