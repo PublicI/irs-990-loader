@@ -9,7 +9,8 @@ module.exports = function(sequelize, DataTypes) {
         org_state: DataTypes.TEXT,
         org_zip: DataTypes.TEXT,
         org_ein: DataTypes.TEXT,
-        cash_amt: DataTypes.DECIMAL(12,2)
+        internal_amt: DataTypes.DECIMAL(12,2),
+        passthrough_amt: DataTypes.DECIMAL(12,2)
     }, {
         indexes: [{
             fields: ['filer_ein']

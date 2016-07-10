@@ -12,6 +12,7 @@ module.exports = function(sequelize, DataTypes) {
         recipient_country: DataTypes.TEXT,
         recipient_ein: DataTypes.TEXT,
         recipient_tax_section: DataTypes.TEXT,
+        recipient_relationship: DataTypes.TEXT,
         cash_amt: DataTypes.DECIMAL(12,2),
         non_cash_amt: DataTypes.DECIMAL(12,2),
         non_cash_desc: DataTypes.TEXT,
