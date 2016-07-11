@@ -1,6 +1,9 @@
 module.exports = function(sequelize, DataTypes) {
     var Org = sequelize.define('irs990_org', {
-        ein: DataTypes.TEXT,
+        ein: {
+            type: DataTypes.TEXT,
+            primaryKey: true
+        },
         name: DataTypes.TEXT,
         ico: DataTypes.TEXT,
         street: DataTypes.TEXT,
@@ -28,7 +31,8 @@ module.exports = function(sequelize, DataTypes) {
         revenue_amt: DataTypes.BIGINT,
         ntee_cd: DataTypes.TEXT,
         sort_name: DataTypes.TEXT
-    },{
+    }, {
+        timestamps: false,
         indexes: [{
             fields: ['ein']
         }]
