@@ -32,10 +32,7 @@ module.exports = function(sequelize, DataTypes) {
         ntee_cd: DataTypes.TEXT,
         sort_name: DataTypes.TEXT
     }, {
-        timestamps: false,
-        indexes: [{
-            fields: ['ein']
-        }]
+        timestamps: false
     });
 
     return Org;
