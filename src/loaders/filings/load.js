@@ -473,7 +473,7 @@ function importFiling(task, callback) {
 
             if (returnData.IRS990ScheduleI &&
                 returnData.IRS990ScheduleI[0].RecipientTable) {
-                // grants = returnData.IRS990ScheduleI[0].RecipientTable;
+                grants = returnData.IRS990ScheduleI[0].RecipientTable;
             }
 
             grants = grants.map(mapFields.bind(this, 'recipient'))
