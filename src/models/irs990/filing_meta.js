@@ -67,6 +67,10 @@ module.exports = function(sequelize, DataTypes) {
             fields: ['ein']
         },{
             fields: ['object_id']
+        },{
+            fields: ['submitted_on']
+        },{
+            fields: ['tax_period']
         }]
     });
 
