@@ -65,6 +65,8 @@ module.exports = function(sequelize, DataTypes) {
         freezeTableName: true,
         indexes: [{
             fields: ['ein']
+        },{
+            fields: ['object_id']
         }]
     });
 

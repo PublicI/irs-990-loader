@@ -9,6 +9,8 @@ module.exports = function(sequelize, DataTypes) {
     },{
         indexes: [{
             fields: ['filer_ein']
+        },{
+            fields: ['object_id']
         }]
     });
 
