@@ -32,9 +32,6 @@ module.exports = function(sequelize, DataTypes) {
         ntee_cd: DataTypes.TEXT,
         sort_name: DataTypes.TEXT
     }, {
-        indexes: [{
-            fields: ['ein']
-        }],
         timestamps: false
     });
 
