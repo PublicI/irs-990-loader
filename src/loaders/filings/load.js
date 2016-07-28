@@ -519,11 +519,11 @@ function importFiling(task, callback) {
             var header = result.Return.ReturnHeader[0];
 
             var startDate = null;
-            if (header.TaxPeriodStartDt) {
-                startDate = header.TaxPeriodStartDt[0];
+            if (header.TaxPeriodBeginDt) {
+                startDate = header.TaxPeriodBeginDt[0];
             }
-            if (header.TaxPeriodStartDate) {
-                startDate = header.TaxPeriodStartDate[0];
+            if (header.TaxPeriodBeginDate) {
+                startDate = header.TaxPeriodBeginDate[0];
             }
             if (startDate) {
                 filing.tax_period_start = startDate;
