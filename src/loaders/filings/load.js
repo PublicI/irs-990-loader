@@ -517,6 +517,18 @@ function importFiling(task, callback) {
             var fileName = path.basename(task.file);
 
             var header = result.Return.ReturnHeader[0];
+
+            var startDate = null;
+            if (header.TaxPeriodStartDt) {
+                startDate = header.TaxPeriodStartDt[0];
+            }
+            if (header.TaxPeriodStartDate) {
+                startDate = header.TaxPeriodStartDate[0];
+            }
+            if (startDate) {
+                filing.tax_period_start = startDate;
+            }
+
             var endDate = null;
             if (header.TaxPeriodEndDt) {
                 endDate = header.TaxPeriodEndDt[0];
@@ -526,6 +538,7 @@ function importFiling(task, callback) {
             }
             if (endDate) {
                 filing.tax_period = endDate.replace('-', '').substr(0, 6);
+                filing.tax_period_end = endDate;
             }
 
             filing.filer_ein = header.Filer[0].EIN[0];
@@ -551,7 +564,7 @@ function importFiling(task, callback) {
                         if (!form) {
                             console.error('error: no form found in ' + task.file);
                         }*/
-
+/*
             rows = rows.concat(processGrants(filing, result));
             rows = rows.concat(processPeople(filing, result));
             rows = rows.concat(processContributors(filing, result));
@@ -563,7 +576,7 @@ function importFiling(task, callback) {
                 row.tax_period = filing.tax_period;
 
                 return row;
-            });
+            });*/
 
         }
 

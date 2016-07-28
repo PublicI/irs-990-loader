@@ -22,3 +22,10 @@ wget -N -P ../../data/stats/ https://www.irs.gov/pub/irs-soi/12eofinextract990ez
 unzip ../../data/stats/12eofinextract990ez.zip -d ../../data/stats/
 wget -N -P ../../data/stats/ https://www.irs.gov/pub/irs-soi/12eofinextract990pf.zip
 unzip ../../data/stats/12eofinextract990pf.zip -d ../../data/stats/
+
+if [ "$DB_DRIVER" = "postgres" ]
+then
+    psql -h $DB_HOST -U $DB_USER -p $DB_PORT $DB_NAME  < load.sql
+else
+    echo -e "DB_DRIVER not set or not to postgres, not loading\n"
+fi
