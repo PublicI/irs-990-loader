@@ -1,3 +1,5 @@
+var moment = require('moment');
+
 module.exports = function(sequelize, DataTypes) {
     var Filing = sequelize.define('irs990_filing', {
         object_id: {
