@@ -623,12 +623,13 @@ function importFiling(task, callback) {
         });
     }
 
-    var cargo = async.cargo(queueRows, 200);
+    var cargo = async.cargo(queueRows, 1);
 
     // assume the object ID is just the numeric portion of the file name
     var object_id = path.basename(task.file,'.xml').replace(/[^0-9]+/g,'');
 
-    checkForFiling(object_id,readXml);
+    // checkForFiling(object_id,readXml);
+    readXml();
 
 }
 
