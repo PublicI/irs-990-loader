@@ -518,15 +518,15 @@ function importFiling(task, callback) {
 
             var header = result.Return.ReturnHeader[0];
 
-            var startDate = null;
+            var beginDate = null;
             if (header.TaxPeriodBeginDt) {
-                startDate = header.TaxPeriodBeginDt[0];
+                beginDate = header.TaxPeriodBeginDt[0];
             }
             if (header.TaxPeriodBeginDate) {
-                startDate = header.TaxPeriodBeginDate[0];
+                beginDate = header.TaxPeriodBeginDate[0];
             }
-            if (startDate) {
-                filing.tax_period_start = startDate;
+            if (beginDate) {
+                filing.tax_period_begin = beginDate;
             }
 
             var endDate = null;
