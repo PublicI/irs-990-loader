@@ -564,7 +564,7 @@ function importFiling(task, callback) {
                         if (!form) {
                             console.error('error: no form found in ' + task.file);
                         }*/
-/*
+
             rows = rows.concat(processGrants(filing, result));
             rows = rows.concat(processPeople(filing, result));
             rows = rows.concat(processContributors(filing, result));
@@ -576,7 +576,7 @@ function importFiling(task, callback) {
                 row.tax_period = filing.tax_period;
 
                 return row;
-            });*/
+            });
 
         }
 
@@ -628,8 +628,7 @@ function importFiling(task, callback) {
     // assume the object ID is just the numeric portion of the file name
     var object_id = path.basename(task.file,'.xml').replace(/[^0-9]+/g,'');
 
-    // checkForFiling(object_id,readXml);
-    readXml();
+    checkForFiling(object_id,readXml);
 
 }
 
