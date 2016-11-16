@@ -92,14 +92,14 @@ function importTable(task, callback) {
         var i = 0;
 
         fs.createReadStream(task.file)
-            .pipe(brake(45164*11))
-            .pipe(JSONStream.parse('AllFilings.*'))
+            .pipe(brake(45164 * 11))
+            .pipe(JSONStream.parse('Filings' + task.year + '.*'))
             .on('data', function(row) {
                 queued++;
 
                 cargo.push(row);
             })
-            .on('end',function () {
+            .on('end', function() {
                 cargo.drain = done;
 
                 if (queued === 0) {
@@ -108,26 +108,38 @@ function importTable(task, callback) {
             });
     }
 
-    var cargo = async.cargo(insertRows, 200);
+    var cargo = async.cargo(insertRows, 400);
 
     startTransaction(function(t) {
         transaction = t;
 
-        truncate(function () {
-            readJson();
-        });
+        //truncate(function () {
+        readJson();
+        //});
     });
 
 }
-
+/*
 models.sync(function (err) {
     if (err) {
         throw err;
-    }
+    }*/
 
-    importTable({
-        file: __dirname + '/../../data/index.json'
-    },function () {
+var dir = __dirname + '/../../data/meta';
 
+var tasks = fs.readdirSync(dir)
+    .filter(function(file) {
+        return file.indexOf('.json') !== -1;
+    }).map(function(file) {
+        var match = file.match(/[0-9]{4}/);
+
+        return {
+            file: dir + '/' + file,
+            year: match[0]
+        };
     });
+
+async.mapSeries(tasks, importTable, function() {
+    console.log('done');
 });
+//});
