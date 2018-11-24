@@ -8,7 +8,8 @@ var _ = require('lodash'),
     util = require('util'),
     flat = require('flat'),
     path = require('path'),
-    rread = require('fs-readdir-recursive');
+    rread = require('fs-readdir-recursive'),
+    axios = require('axios');
 
 var fieldMap = {
     'ContriToEmplBenefitPlansEtc.0': 'benefit_contribution',
@@ -173,7 +174,7 @@ var fieldMap = {
 };
 
 function importFiling(task, callback) {
-    // console.log('processing ' + task.file);
+    console.log('processing ' + task.file);
 
     var transaction = null;
 
@@ -584,43 +585,42 @@ function importFiling(task, callback) {
     }
 
     function readXml() {
-        fs.readFile(task.file, function(err, data) {
-            if (err) {
-                error(err);
-            }
+        axios
+            .get(task.url)
+            .catch(error)
+            .then(function({ data }) {
+                parseString(data, function(err2, result) {
+                    if (err2) {
+                        error(err2);
+                    }
 
-            parseString(data, function(err2, result) {
-                if (err2) {
-                    error(err);
-                }
+                    var rows = processFiling(result);
 
-                var rows = processFiling(result);
+                    if (rows && rows.length > 0) {
+                        startTransaction(function(t) {
+                            if (!t) {
+                                done();
 
-                if (rows && rows.length > 0) {
-                    startTransaction(function(t) {
-                        if (!t) {
-                            done();
+                                return;
+                            }
 
-                            return;
-                        }
+                            transaction = t;
 
-                        transaction = t;
+                            cargo.push(rows);
 
-                        cargo.push(rows);
+                            queued += rows.length;
 
-                        queued += rows.length;
+                            cargo.drain = done;
 
-                        cargo.drain = done;
-
-                        if (queued === processed || queued === 0) {
-                            done();
-                        }
-                    });
-                } else {
-                    done();
-                }
+                            if (queued === processed || queued === 0) {
+                                done();
+                            }
+                        });
+                    } else {
+                        done();
+                    }
+                });
             });
-        });
     }
 
     var cargo = async.cargo(queueRows, 1);
@@ -632,6 +632,7 @@ function importFiling(task, callback) {
 
 }
 
+/*
 function importDir(dir) {
     dir = dir || __dirname + '/../../data';
 
@@ -664,4 +665,35 @@ if (models.sync) {
     });
 } else {
     importDir();
+}*/
+
+
+
+function getFilings(cb) {
+    var q = async.queue(importFiling, 1);
+
+    models.sequelize.query(`SELECT url
+        FROM irs990_filings_meta
+        LEFT JOIN irs990_filings USING (object_id)
+        where irs990_filings.object_id is null
+        order by random()
+        limit 100
+        `, { model: models.irs990_filings_meta })
+        .catch(cb)
+        .then(filings => {
+            if (filings.length === 0) {
+                return;
+            }
+
+            filings.forEach((filing) => {
+                q.push({
+                    file: filing.dataValues.url.replace('https://s3.amazonaws.com/irs-form-990/',''),
+                    url: filing.dataValues.url
+                });
+            });
+
+            q.drain = cb.bind(this,cb);
+        });
 }
+
+getFilings(getFilings);
