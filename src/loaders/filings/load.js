@@ -126,6 +126,7 @@ var fieldMap = {
     'ContributorAddressForeign.0.AddressLine1.0': 'prefix_street_1',
     'RecipientForeignAddress.0.AddressLine1Txt.0': 'prefix_street_1',
     'ContributorAddressForeign.0.AddressLine2.0': 'prefix_street_2',
+    'RecipientForeignAddress.0.AddressLine2Txt.0': 'prefix_street_2',
     'USAddress.0.AddressLine2.0': 'prefix_street_2',
     'AddressUS.0.AddressLine2.0': 'prefix_street_2',
     'USAddress.0.AddressLine2Txt.0': 'prefix_street_2',
