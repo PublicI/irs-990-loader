@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #wget -N -P ../../data/ https://s3.amazonaws.com/irs-form-990/index.json 
-for year in 2011 2012 2013 2014 2015 2016
+for year in 2011 2012 2013 2014 2015 2016 2017 2018 2018
 do
     aws s3 cp s3://irs-form-990/index_$year.json ../../data/meta
 done
