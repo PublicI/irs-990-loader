@@ -4,6 +4,7 @@
   "description": "Loads data from 990s",
   "main": "index.js",
   "scripts": {
+    "start": "node src/loaders/filings/load.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
