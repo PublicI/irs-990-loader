@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 ARG NODE_ENV
 ENV NODE_ENV $NODE_ENV
 COPY . /usr/src/app
-RUN apk --update add git && rm -rf /var/cache/apk/*
+RUN apk --update add aws-cli && rm -rf /var/cache/apk/*
 RUN npm ci && npm cache clean --force
 
 CMD ["npm", "start"]
