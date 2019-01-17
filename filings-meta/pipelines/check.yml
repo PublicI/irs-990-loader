@@ -2,7 +2,7 @@
 pipeline:
   name: irs-990-electronic-filings-meta-check
 transform:
-  image: publicintegrity/irs-990-loader
+  image: publicintegrity/irs-990-loader:8bcfbac7abef
   cmd:
   - bash
   stdin:
