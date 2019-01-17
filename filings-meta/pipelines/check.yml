@@ -4,13 +4,12 @@ pipeline:
 transform:
   image: publicintegrity/irs-990-loader
   cmd:
-    bash
+  - bash
   stdin:
-  - ./filings-meta/transform/check.sh /pfs/out/
+  - ./filings-meta/transforms/check.sh /pfs/out/
 parallelism_spec:
   constant: 1
-standby: true
 input:
-- cron:
+  cron:
     name: tick
-    spec: "@every 1d"
+    spec: "@every 1m"

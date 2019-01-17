@@ -6,12 +6,12 @@ transform:
   cmd:
   - bash
   stdin:
-  - ./filings-meta/transform/load.sh /pfs/irs-990-electronic-filings-meta-download
+  - ./filings-meta/transforms/load.sh /pfs/irs-990-electronic-filings-meta-download
 parallelism_spec:
   constant: 2
 standby: true
 input:
-- pfs:
+  pfs:
     name: irs-990-electronic-filings-meta-download
     glob: /*
     lazy: true
