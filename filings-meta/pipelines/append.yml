@@ -1,0 +1,16 @@
+---
+pipeline:
+  name: irs-990-electronic-filings-meta-load
+transform:
+  image: publicintegrity/irs-990-loader
+  cmd:
+  - bash
+  stdin:
+  - ./filings-meta/transform/load.sh /pfs/irs-990-electronic-filings-meta-download
+parallelism_spec:
+  constant: 2
+standby: true
+input:
+- pfs:
+    name: irs-990-electronic-filings-meta-download
+    glob: /*

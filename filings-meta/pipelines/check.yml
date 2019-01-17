@@ -1,0 +1,16 @@
+---
+pipeline:
+  name: irs-990-electronic-filings-meta-check
+transform:
+  image: publicintegrity/irs-990-loader
+  cmd:
+    bash
+  stdin:
+  - ./filings-meta/transform/check.sh /pfs/out/
+parallelism_spec:
+  constant: 1
+standby: true
+input:
+- cron:
+    name: tick
+    spec: "@every 1d"
