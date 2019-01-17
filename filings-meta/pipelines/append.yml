@@ -14,3 +14,4 @@ input:
 - pfs:
     name: irs-990-electronic-filings-meta-download
     glob: /*
+    lazy: true

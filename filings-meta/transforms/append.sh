@@ -1,3 +1,7 @@
 #!/bin/bash
 
-find $1 -type f | xargs BASE=$(basename $index .csv) YEAR=${base#index_}; sed -e 's/$/,'$year'/' $index > $2/index_$year.csv
+for f in $(find $1*.csv); do
+    base=$(basename $f .csv)
+    year=${base#index_};
+    tr -d '\r' < $f | sed -e 's/$/,'$year'/' > $2/$base.csv
+done

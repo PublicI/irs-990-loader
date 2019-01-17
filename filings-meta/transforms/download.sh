@@ -1,3 +1,5 @@
 #!/bin/bash
 
-find $1 -type f | xargs aws s3 cp s3://irs-form-990/$(basename $index) $2
+for f in $(find $1*.csv); do
+    aws s3 cp s3://irs-form-990/$(basename $f) $2
+done

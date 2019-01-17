@@ -5,7 +5,7 @@ pipeline:
     repo: publicintegrity/irs-990-loader
     when:
       event: [push, tag]
-      branch: master
+      branch: pachyderm
 
   helm_deploy:
     image: peloton/drone-helm
