@@ -2,16 +2,17 @@
 pipeline:
   name: irs-990-electronic-filings-meta-load
 transform:
-  image: publicintegrity/irs-990-loader
+  image: publicintegrity/irs-990-loader:1854f525e29a
   cmd:
   - bash
   stdin:
-  - ./filings-meta/transforms/load.sh /pfs/irs-990-electronic-filings-meta-download
+  - ./filings-meta/transforms/load.sh /pfs/append/
 parallelism_spec:
   constant: 2
 standby: true
 input:
   pfs:
-    name: irs-990-electronic-filings-meta-download
+    name: append
+    repo: irs-990-electronic-filings-meta-append
     glob: /*
     lazy: true
