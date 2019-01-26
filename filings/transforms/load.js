@@ -1,15 +1,7 @@
-var _ = require('lodash'),
-    fs = require('fs'),
-    async = require('async'),
-    numeral = require('numeral'),
-    models = require('../../models'),
-    moment = require('moment'),
+var fs = require('fs'),
     parseString = require('xml2js').parseString,
-    util = require('util'),
     flat = require('flat'),
-    path = require('path'),
-    rread = require('fs-readdir-recursive'),
-    axios = require('axios');
+    path = require('path');
 
 var fieldMap = {
     'ContriToEmplBenefitPlansEtc.0': 'benefit_contribution',
@@ -176,145 +168,6 @@ var fieldMap = {
 
 function importFiling(task, callback) {
     console.log('processing ' + task.file);
-
-    var transaction = null;
-
-    var processed = 0,
-        queued = 0,
-        finished = false;
-
-    function startTransaction(cb) {
-        if (models.sequelize) {
-            models.sequelize.transaction()
-                .then(cb)
-                .catch(error);
-        } else {
-            // console.warn('no database connection, no transaction started');
-
-            cb();
-        }
-    }
-
-    function processRows(task, cb) {
-        if (finished) {
-            cb();
-            return;
-        }
-        /*
-                console.log('processing ' + numeral(processed).format() + ' - ' +
-                    numeral(processed + task.rows.length).format() + ' of ' +
-                    numeral(queued).format());
-        */
-
-        rows = task.rows;
-
-        rows[0].model
-            .bulkCreate(rows, {
-                transaction: transaction
-            })
-            .then(function(instances) {
-                processed += rows.length;
-
-                cb();
-            })
-            .catch(error);
-    }
-
-
-    function queueRows(rows, cb) {
-        if (finished) {
-            cb();
-            return;
-        }
-
-        var modelGroups = _(rows)
-            .groupBy(function(row) {
-                return row.model.name;
-            })
-            .toArray()
-            .map(function(rows) {
-                return {
-                    rows: rows
-                };
-            })
-            .value();
-
-        var q = async.queue(processRows, 1);
-
-        q.push(modelGroups, function(err) {
-            if (err) {
-                q.kill();
-
-                cb(err);
-            }
-        });
-
-        q.drain = cb;
-    }
-
-    function error(err) {
-        finished = true;
-
-        console.error(err);
-
-        if (transaction !== null) {
-            console.error('rolling back transaction');
-
-            transaction.rollback()
-                .then(callback.bind(this, err))
-                .catch(function() {
-                    console.error('error rolling back transaction');
-
-                    callback(err);
-                });
-        } else {
-            callback(err);
-        }
-    }
-
-    function done() {
-        // console.log('inserted ' + processed + ' rows from ' + task.file);
-
-        if (processed == queued && !finished) {
-            finished = true;
-
-            if (transaction) {
-                // console.log('commiting transaction');
-
-                transaction.commit()
-                    .then(function(result) {
-                        callback(null, result);
-                    })
-                    .catch(error);
-            } else {
-                callback(null);
-            }
-        }
-    }
-
-    function truncate(model, cb) {
-        if (model) {
-            model.truncate({
-                    transaction: transaction
-                })
-                .then(cb);
-        }
-    }
-
-    function checkForFiling(id,cb) {
-        models.irs990_filing.findById(id)
-            .then(function (result) {
-                if (result) {
-                    //console.log('already inserted ' + filing_id);
-
-                    callback();
-                }
-                else {
-                    cb();
-                }
-            })
-            .catch(error);
-    }
 
     function mapFields(prefix, obj) {
         obj = flat(obj);
@@ -550,23 +403,6 @@ function importFiling(task, callback) {
 
             rows.push(filing);
 
-            /*
-                        var form = null;
-
-                        if (result.Return.ReturnData[0].IRS990) {
-                            form = result.Return.ReturnData[0].IRS990[0];
-                        }
-                        if (result.Return.ReturnData[0].IRS990EZ) {
-                            form = result.Return.ReturnData[0].IRS990EZ[0];
-                        }
-                        if (result.Return.ReturnData[0].IRS990PF) {
-                            form = result.Return.ReturnData[0].IRS990PF[0];
-                        }
-
-                        if (!form) {
-                            console.error('error: no form found in ' + task.file);
-                        }*/
-
             rows = rows.concat(processGrants(filing, result));
             rows = rows.concat(processPeople(filing, result));
             rows = rows.concat(processContributors(filing, result));
@@ -585,116 +421,23 @@ function importFiling(task, callback) {
         return rows;
     }
 
-    function readXml() {
-        axios
-            .get(task.url)
-            .catch(error)
-            .then(function({ data }) {
-                parseString(data, function(err2, result) {
-                    if (err2) {
-                        error(err2);
-                    }
+    function readXml(filePath) {
+        let data = fs.readFileSync(filePath,'utf8');
 
-                    var rows = processFiling(result);
+        parseString(data, function(err2, result) {
+            if (err2) {
+                error(err2);
+            }
 
-                    if (rows && rows.length > 0) {
-                        startTransaction(function(t) {
-                            if (!t) {
-                                done();
-
-                                return;
-                            }
-
-                            transaction = t;
-
-                            cargo.push(rows);
-
-                            queued += rows.length;
-
-                            cargo.drain = done;
-
-                            if (queued === processed || queued === 0) {
-                                done();
-                            }
-                        });
-                    } else {
-                        done();
-                    }
-                });
-            });
+            processFiling(result);
+        });
     }
-
-    var cargo = async.cargo(queueRows, 1);
 
     // assume the object ID is just the numeric portion of the file name
     var object_id = path.basename(task.file,'.xml').replace(/[^0-9]+/g,'');
 
-    checkForFiling(object_id,readXml);
+    readXml(task.file);
 
 }
 
-/*
-function importDir(dir) {
-    dir = dir || __dirname + '/../../data';
-
-    var q = async.queue(importFiling, 1);
-
-    rread(dir)
-        .filter(function(file) {
-            return (file.slice(-4) === '.xml');
-        })
-        .forEach(function(file) {
-            q.push({
-                file: dir + '/' + file
-            });
-        });
-
-    q.drain = function() {
-        console.log('done');
-    };
-}
-
-var dir = __dirname + '/data';
-
-if (models.sync) {
-    models.sync(function(err) {
-        if (err) {
-            console.error(err);
-        }
-
-        importDir();
-    });
-} else {
-    importDir();
-}*/
-
-
-
-function getFilings(cb) {
-    var q = async.queue(importFiling, 1);
-
-    models.sequelize.query(`SELECT url
-        FROM irs990_filings_meta
-        LEFT JOIN irs990_filings USING (object_id)
-        where irs990_filings.object_id is null
-        order by random()
-        limit 100
-        `, { model: models.irs990_filings_meta })
-        .catch(cb)
-        .then(filings => {
-            if (filings.length === 0) {
-                return;
-            }
-
-            filings.forEach((filing) => {
-                q.push({
-                    file: filing.dataValues.url.replace('https://s3.amazonaws.com/irs-form-990/',''),
-                    url: filing.dataValues.url
-                });
-            });
-
-            q.drain = cb.bind(this,cb);
-        });
-}
-
-getFilings(getFilings);
+importFiling();

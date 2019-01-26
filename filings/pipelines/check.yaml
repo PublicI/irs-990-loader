@@ -1,0 +1,28 @@
+---
+pipeline:
+  name: irs-990-electronic-filings-check
+transform:
+  image: publicintegrity/irs-990-loader:1854f525e29a
+  cmd:
+  - bash
+  stdin:
+  - ./filings/transforms/check.sh /pfs/out/
+  secrets:
+    - name: pachyderm-postgres-politics-auth
+      env_var: PGHOST
+      key: pghost
+    - name: pachyderm-postgres-politics-auth
+      env_var: PGDATABASE
+      key: pgdatabase
+    - name: pachyderm-postgres-politics-auth
+      env_var: PGUSER
+      key: pguser
+    - name: pachyderm-postgres-politics-auth
+      env_var: PGPASSWORD
+      key: pgpassword
+parallelism_spec:
+  constant: 1
+input:
+  cron:
+    name: tick
+    spec: "@hourly"
