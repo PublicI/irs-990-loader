@@ -7,6 +7,19 @@ transform:
   - bash
   stdin:
   - ./filings-meta/transforms/load.sh /pfs/append/
+  secrets:
+    - name: pachyderm-postgres-politics-auth
+      env_var: PGHOST
+      key: pghost
+    - name: pachyderm-postgres-politics-auth
+      env_var: PGDATABASE
+      key: pgdatabase
+    - name: pachyderm-postgres-politics-auth
+      env_var: PGUSER
+      key: pguser
+    - name: pachyderm-postgres-politics-auth
+      env_var: PGPASSWORD
+      key: pgpassword
 parallelism_spec:
   constant: 2
 standby: true
