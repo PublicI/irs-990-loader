@@ -1,12 +1,22 @@
 pipeline:
-  build:
+  build_dry_run:
+    image: plugins/docker
+    secrets: [ docker_username, docker_password ]
+    repo: publicintegrity/irs-990-loader
+    tags: ${DRONE_COMMIT_SHA:0:12}
+    dry_run: true
+    when:
+      event: [push, tag]
+      branch: pachyderm
+
+  build_push:
     image: plugins/docker
     secrets: [ docker_username, docker_password ]
     repo: publicintegrity/irs-990-loader
     tags: ${DRONE_COMMIT_SHA:0:12}
     when:
-      event: [push, tag]
-      branch: pachyderm
+      event: deployment
+      environment: production
 
   # helm_deploy:
   #   image: peloton/drone-helm
