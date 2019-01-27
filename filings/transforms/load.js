@@ -166,7 +166,7 @@ var fieldMap = {
     'MethodOfValuation.0': 'valuation_method'
 };
 
-function importFiling(task, callback) {
+function importFiling(task) {
     console.log('processing ' + task.file);
 
     function mapFields(prefix, obj) {
@@ -206,7 +206,7 @@ function importFiling(task, callback) {
                                 org.org_name = ' ' + org.org_name_2.trim();
                             }
 
-                            org.model = models.irs990_political_contrib;
+                            org.model = 'irs990_political_contrib';
 
                             return org;
                         });
@@ -237,7 +237,7 @@ function importFiling(task, callback) {
                         return include;
                     })
                     .map(function(contributor) {
-                        contributor.model = models.irs990_contributor;
+                        contributor.model = 'irs990_contributor';
 
                         return contributor;
                     });
@@ -308,7 +308,7 @@ function importFiling(task, callback) {
                         person.business_name = ' ' + person.business_name_2.trim();
                     }
 
-                    person.model = models.irs990_person;
+                    person.model = 'irs990_person';
 
                     return person;
                 });
@@ -354,7 +354,7 @@ function importFiling(task, callback) {
                         }
                     }
 
-                    grant.model = models.irs990_grant;
+                    grant.model = 'irs990_grant';
 
                     return grant;
                 });
@@ -399,7 +399,7 @@ function importFiling(task, callback) {
             filing.filer_ein = header.Filer[0].EIN[0];
             filing.object_id = fileName.replace('_public.xml', '');
 
-            filing.model = models.irs990_filing;
+            filing.model = 'irs990_filing';
 
             rows.push(filing);
 
@@ -426,10 +426,10 @@ function importFiling(task, callback) {
 
         parseString(data, function(err2, result) {
             if (err2) {
-                error(err2);
+                console.error(err2);
             }
 
-            processFiling(result);
+            console.log(JSON.stringify(processFiling(result)));
         });
     }
 
@@ -440,4 +440,6 @@ function importFiling(task, callback) {
 
 }
 
-importFiling();
+importFiling({
+    file: process.argv[2]
+});
