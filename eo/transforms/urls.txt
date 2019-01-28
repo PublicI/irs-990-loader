@@ -1,0 +1,4 @@
+https://www.irs.gov/pub/irs-soi/eo1.csv
+https://www.irs.gov/pub/irs-soi/eo2.csv
+https://www.irs.gov/pub/irs-soi/eo3.csv
+https://www.irs.gov/pub/irs-soi/eo4.csv
