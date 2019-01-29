@@ -2,8 +2,8 @@
 
 psql -f create.sql
 
-for f in $(find $1*.csv); do
-    base=$(basename $f .csv)
+for file in $(find $1*.csv); do
+    base=$(basename $file .csv)
     year=${base#index_};
 
     psql -c "START TRANSACTION;
@@ -15,5 +15,5 @@ for f in $(find $1*.csv); do
     COPY irs990_filings_meta
     FROM STDIN CSV HEADER;
 
-    COMMIT TRANSACTION;" < $f
+    COMMIT TRANSACTION;" < $file
 done
