@@ -1,3 +1,3 @@
 #!/bin/bash
 
-wget -N -i urls.txt
+aria2c -x 16 -i urls.txt --continue
